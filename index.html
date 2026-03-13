@@ -1,0 +1,912 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Google Cloud Professional Cloud Architect Renewal Exam</title>
+  <style>
+    :root {
+      --google-blue: #1a73e8;
+      --google-blue-dark: #1558b0;
+      --google-green: #34a853;
+      --google-red: #ea4335;
+      --google-yellow: #fbbc04;
+      --surface: #ffffff;
+      --surface-alt: #f8f9fa;
+      --border: #dadce0;
+      --text-primary: #202124;
+      --text-secondary: #5f6368;
+      --text-hint: #80868b;
+      --shadow-sm: 0 1px 2px rgba(60,64,67,.3), 0 1px 3px 1px rgba(60,64,67,.15);
+      --shadow-md: 0 1px 3px rgba(60,64,67,.3), 0 4px 8px 3px rgba(60,64,67,.15);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Google Sans', 'Segoe UI', Roboto, Arial, sans-serif;
+      background: var(--surface-alt);
+      color: var(--text-primary);
+      min-height: 100vh;
+    }
+
+    /* ── Header ── */
+    header {
+      background: var(--google-blue);
+      color: #fff;
+      padding: 16px 24px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      box-shadow: var(--shadow-sm);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    header svg { flex-shrink: 0; }
+
+    .header-text h1 { font-size: 1.1rem; font-weight: 600; letter-spacing: .01em; }
+    .header-text p  { font-size: .8rem; opacity: .85; margin-top: 2px; }
+
+    /* ── Layout ── */
+    .app-container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 24px 16px;
+    }
+
+    /* ── Screen visibility ── */
+    .screen { display: none; }
+    .screen.active { display: block; }
+
+    /* ── Start screen ── */
+    .start-card {
+      background: var(--surface);
+      border-radius: 12px;
+      padding: 40px;
+      box-shadow: var(--shadow-sm);
+      text-align: center;
+    }
+
+    .start-card h2 { font-size: 1.6rem; color: var(--text-primary); margin-bottom: 12px; }
+    .start-card p  { color: var(--text-secondary); line-height: 1.6; max-width: 560px; margin: 0 auto 24px; }
+
+    .info-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 16px;
+      margin-bottom: 32px;
+    }
+
+    .info-item {
+      background: var(--surface-alt);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px;
+    }
+
+    .info-item .value { font-size: 1.5rem; font-weight: 700; color: var(--google-blue); }
+    .info-item .label { font-size: .75rem; color: var(--text-secondary); margin-top: 4px; }
+
+    .case-studies {
+      background: #e8f0fe;
+      border-radius: 8px;
+      padding: 16px 20px;
+      margin-bottom: 28px;
+      text-align: left;
+    }
+
+    .case-studies h3 { font-size: .85rem; font-weight: 600; color: var(--google-blue-dark); margin-bottom: 8px; }
+    .case-studies ul { padding-left: 20px; }
+    .case-studies li { font-size: .85rem; color: var(--text-secondary); margin-bottom: 4px; }
+
+    /* ── Buttons ── */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 24px;
+      border-radius: 6px;
+      border: none;
+      font-family: inherit;
+      font-size: .9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background .15s, box-shadow .15s, opacity .15s;
+    }
+
+    .btn-primary {
+      background: var(--google-blue);
+      color: #fff;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .btn-primary:hover { background: var(--google-blue-dark); box-shadow: var(--shadow-md); }
+
+    .btn-secondary {
+      background: var(--surface);
+      color: var(--google-blue);
+      border: 1px solid var(--google-blue);
+    }
+
+    .btn-secondary:hover { background: #e8f0fe; }
+
+    .btn:disabled { opacity: .45; cursor: not-allowed; }
+
+    /* ── Progress bar ── */
+    .progress-bar-wrap {
+      background: var(--surface);
+      border-radius: 12px;
+      padding: 16px 20px;
+      box-shadow: var(--shadow-sm);
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .progress-track {
+      flex: 1;
+      height: 8px;
+      background: var(--border);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: var(--google-blue);
+      border-radius: 4px;
+      transition: width .3s ease;
+    }
+
+    .progress-label { font-size: .8rem; color: var(--text-secondary); white-space: nowrap; }
+
+    /* ── Question card ── */
+    .question-card {
+      background: var(--surface);
+      border-radius: 12px;
+      padding: 32px;
+      box-shadow: var(--shadow-sm);
+      margin-bottom: 20px;
+    }
+
+    .question-meta {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+
+    .badge {
+      font-size: .7rem;
+      font-weight: 600;
+      padding: 3px 10px;
+      border-radius: 12px;
+      letter-spacing: .03em;
+    }
+
+    .badge-section { background: #e8f0fe; color: var(--google-blue-dark); }
+    .badge-case { background: #fce8e6; color: #c5221f; }
+    .badge-number { background: var(--surface-alt); color: var(--text-secondary); border: 1px solid var(--border); }
+
+    .question-text {
+      font-size: 1rem;
+      line-height: 1.65;
+      color: var(--text-primary);
+      margin-bottom: 24px;
+    }
+
+    /* ── Options ── */
+    .options-list { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+
+    .option-item label {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      padding: 14px 16px;
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      cursor: pointer;
+      transition: border-color .15s, background .15s;
+    }
+
+    .option-item label:hover { border-color: var(--google-blue); background: #f6f9ff; }
+
+    .option-item input[type="radio"] { display: none; }
+
+    .option-letter {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: var(--surface-alt);
+      border: 1.5px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: .8rem;
+      flex-shrink: 0;
+      transition: background .15s, border-color .15s, color .15s;
+      color: var(--text-secondary);
+    }
+
+    .option-text { font-size: .95rem; line-height: 1.55; padding-top: 3px; }
+
+    /* selected */
+    .option-item input:checked + label { border-color: var(--google-blue); background: #e8f0fe; }
+    .option-item input:checked + label .option-letter {
+      background: var(--google-blue);
+      border-color: var(--google-blue);
+      color: #fff;
+    }
+
+    /* answered states */
+    .option-item.correct label { border-color: var(--google-green); background: #e6f4ea; }
+    .option-item.correct label .option-letter { background: var(--google-green); border-color: var(--google-green); color: #fff; }
+
+    .option-item.wrong label { border-color: var(--google-red); background: #fce8e6; }
+    .option-item.wrong label .option-letter { background: var(--google-red); border-color: var(--google-red); color: #fff; }
+
+    .option-item.disabled label { cursor: default; }
+    .option-item.disabled label:hover { border-color: var(--border); background: inherit; }
+    .option-item.correct.disabled label:hover { border-color: var(--google-green); background: #e6f4ea; }
+    .option-item.wrong.disabled label:hover { border-color: var(--google-red); background: #fce8e6; }
+
+    /* ── Explanation panel ── */
+    .explanation-panel {
+      display: none;
+      margin-top: 20px;
+      padding: 16px 20px;
+      border-radius: 8px;
+      border-left: 4px solid var(--google-blue);
+      background: #e8f0fe;
+    }
+
+    .explanation-panel.show { display: block; }
+
+    .explanation-panel h4 {
+      font-size: .85rem;
+      font-weight: 700;
+      color: var(--google-blue-dark);
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+    }
+
+    .explanation-panel p { font-size: .9rem; line-height: 1.65; color: var(--text-primary); }
+
+    /* ── Navigation ── */
+    .nav-bar {
+      background: var(--surface);
+      border-radius: 12px;
+      padding: 16px 20px;
+      box-shadow: var(--shadow-sm);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .nav-center { display: flex; align-items: center; gap: 8px; }
+
+    /* ── Question navigator ── */
+    .question-nav-toggle {
+      background: var(--surface);
+      border-radius: 12px;
+      padding: 16px 20px;
+      box-shadow: var(--shadow-sm);
+      margin-bottom: 20px;
+    }
+
+    .question-nav-toggle summary {
+      font-size: .85rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      cursor: pointer;
+      user-select: none;
+      list-style: none;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .question-nav-toggle summary::-webkit-details-marker { display: none; }
+
+    .q-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .q-dot {
+      width: 34px;
+      height: 34px;
+      border-radius: 6px;
+      border: 1.5px solid var(--border);
+      background: var(--surface-alt);
+      font-size: .8rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background .15s, border-color .15s, color .15s;
+    }
+
+    .q-dot:hover { border-color: var(--google-blue); color: var(--google-blue); }
+    .q-dot.current { border-color: var(--google-blue); background: var(--google-blue); color: #fff; }
+    .q-dot.answered-correct { background: #e6f4ea; border-color: var(--google-green); color: var(--google-green); }
+    .q-dot.answered-wrong { background: #fce8e6; border-color: var(--google-red); color: var(--google-red); }
+    .q-dot.skipped { border-style: dashed; }
+
+    /* ── Results screen ── */
+    .results-card {
+      background: var(--surface);
+      border-radius: 12px;
+      padding: 40px;
+      box-shadow: var(--shadow-sm);
+      text-align: center;
+    }
+
+    .score-circle {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      background: conic-gradient(var(--google-blue) calc(var(--pct) * 1%), var(--border) 0);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 24px;
+      position: relative;
+    }
+
+    .score-circle-inner {
+      width: 88px;
+      height: 88px;
+      border-radius: 50%;
+      background: var(--surface);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .score-pct { font-size: 1.6rem; font-weight: 700; color: var(--text-primary); }
+    .score-sub { font-size: .7rem; color: var(--text-secondary); margin-top: 2px; }
+
+    .results-card h2 { font-size: 1.4rem; margin-bottom: 8px; }
+    .results-card > p { color: var(--text-secondary); margin-bottom: 28px; }
+
+    .section-breakdown {
+      text-align: left;
+      margin-bottom: 28px;
+    }
+
+    .section-breakdown h3 { font-size: .9rem; font-weight: 700; margin-bottom: 12px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: .05em; }
+
+    .section-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .section-name { font-size: .8rem; color: var(--text-primary); min-width: 200px; }
+
+    .section-bar-track {
+      flex: 1;
+      height: 6px;
+      background: var(--border);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+
+    .section-bar-fill {
+      height: 100%;
+      border-radius: 3px;
+      background: var(--google-blue);
+      transition: width .4s ease;
+    }
+
+    .section-score { font-size: .8rem; color: var(--text-secondary); min-width: 42px; text-align: right; }
+
+    .results-actions { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; }
+
+    /* ── Review overlay ── */
+    #review-section {
+      display: none;
+    }
+
+    #review-section.active { display: block; }
+
+    .review-header {
+      background: var(--surface);
+      border-radius: 12px;
+      padding: 20px 24px;
+      box-shadow: var(--shadow-sm);
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .review-header h2 { font-size: 1.1rem; font-weight: 700; }
+
+    /* ── Responsive ── */
+    @media (max-width: 600px) {
+      .question-card { padding: 20px; }
+      .start-card { padding: 24px; }
+      .results-card { padding: 24px; }
+      .section-name { min-width: 120px; font-size: .75rem; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <!-- Google Cloud logo icon -->
+  <svg width="36" height="36" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <path d="M6.5 10.5C6.5 8.01 8.51 6 11 6c1.9 0 3.52 1.14 4.27 2.77L16 10h1.5A3.5 3.5 0 0118 17H6a4 4 0 010-8h.5" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+  </svg>
+  <div class="header-text">
+    <h1>Professional Cloud Architect Renewal Exam</h1>
+    <p>Google Cloud Certification · Senior Examiner Edition</p>
+  </div>
+</header>
+
+<div class="app-container">
+
+  <!-- ══ START SCREEN ══ -->
+  <div id="start-screen" class="screen active">
+    <div class="start-card">
+      <h2>Welcome to the PCA Renewal Practice Exam</h2>
+      <p>
+        This exam assesses your continued mastery of Google Cloud architecture, security, reliability,
+        and operations. Questions are scenario-based and aligned with the official exam guide,
+        Cymbal Retail, and Altostrat Media case studies.
+      </p>
+
+      <div class="info-grid">
+        <div class="info-item">
+          <div class="value">25</div>
+          <div class="label">Questions</div>
+        </div>
+        <div class="info-item">
+          <div class="value">6</div>
+          <div class="label">Exam Sections</div>
+        </div>
+        <div class="info-item">
+          <div class="value">~50 min</div>
+          <div class="label">Estimated Time</div>
+        </div>
+        <div class="info-item">
+          <div class="value">70%</div>
+          <div class="label">Passing Score</div>
+        </div>
+      </div>
+
+      <div class="case-studies">
+        <h3>Case Studies Referenced</h3>
+        <ul>
+          <li><strong>Cymbal Retail</strong> — A multinational retailer migrating legacy on-premises workloads to Google Cloud, modernising its e-commerce platform with microservices and managed data services.</li>
+          <li><strong>Altostrat Media</strong> — A fast-growing media company building a global video streaming platform that requires low-latency delivery, real-time analytics, and ML-driven personalisation.</li>
+        </ul>
+      </div>
+
+      <button class="btn btn-primary" id="start-btn">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+        Begin Exam
+      </button>
+    </div>
+  </div>
+
+  <!-- ══ EXAM SCREEN ══ -->
+  <div id="exam-screen" class="screen">
+
+    <!-- Progress -->
+    <div class="progress-bar-wrap">
+      <div class="progress-track">
+        <div class="progress-fill" id="progress-fill"></div>
+      </div>
+      <span class="progress-label" id="progress-label">0 / 25</span>
+    </div>
+
+    <!-- Question navigator -->
+    <details class="question-nav-toggle" id="q-nav-details">
+      <summary>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+        Question Navigator
+      </summary>
+      <div class="q-grid" id="q-grid"></div>
+    </details>
+
+    <!-- Question card -->
+    <div class="question-card" id="question-card">
+      <div class="question-meta" id="question-meta"></div>
+      <p class="question-text" id="question-text"></p>
+      <ul class="options-list" id="options-list"></ul>
+      <div class="explanation-panel" id="explanation-panel">
+        <h4>Explanation</h4>
+        <p id="explanation-text"></p>
+      </div>
+    </div>
+
+    <!-- Navigation -->
+    <div class="nav-bar">
+      <button class="btn btn-secondary" id="prev-btn" disabled>← Previous</button>
+      <div class="nav-center">
+        <button class="btn btn-secondary" id="skip-btn">Skip</button>
+      </div>
+      <button class="btn btn-primary" id="next-btn">Next →</button>
+    </div>
+  </div>
+
+  <!-- ══ RESULTS SCREEN ══ -->
+  <div id="results-screen" class="screen">
+    <div class="results-card">
+      <div class="score-circle" id="score-circle">
+        <div class="score-circle-inner">
+          <span class="score-pct" id="score-pct">0%</span>
+          <span class="score-sub" id="score-sub">0/25</span>
+        </div>
+      </div>
+
+      <h2 id="result-heading">Calculating results…</h2>
+      <p id="result-message"></p>
+
+      <div class="section-breakdown">
+        <h3>Section Breakdown</h3>
+        <div id="section-rows"></div>
+      </div>
+
+      <div class="results-actions">
+        <button class="btn btn-secondary" id="review-btn">Review Answers</button>
+        <button class="btn btn-primary" id="restart-btn">Restart Exam</button>
+      </div>
+    </div>
+
+    <!-- Review section (injected below results card) -->
+    <div id="review-section"></div>
+  </div>
+
+</div>
+
+<script>
+(async () => {
+  // ── Load questions ──────────────────────────────────────────────────────────
+  let questions = [];
+  let sections  = [];
+
+  try {
+    const res  = await fetch('questions.json');
+    const data = await res.json();
+    questions  = data.questions;
+    sections   = data.exam.sections;
+  } catch (e) {
+    document.querySelector('.app-container').innerHTML =
+      '<div style="padding:40px;text-align:center;color:#ea4335">Failed to load questions.json. Please serve this file over HTTP.</div>';
+    return;
+  }
+
+  // ── State ───────────────────────────────────────────────────────────────────
+  let current   = 0;
+  const answers = {};   // questionId → selectedOption letter
+  const skipped = new Set();
+
+  // ── DOM refs ─────────────────────────────────────────────────────────────────
+  const startScreen   = document.getElementById('start-screen');
+  const examScreen    = document.getElementById('exam-screen');
+  const resultsScreen = document.getElementById('results-screen');
+
+  const progressFill  = document.getElementById('progress-fill');
+  const progressLabel = document.getElementById('progress-label');
+  const qGrid         = document.getElementById('q-grid');
+  const questionMeta  = document.getElementById('question-meta');
+  const questionText  = document.getElementById('question-text');
+  const optionsList   = document.getElementById('options-list');
+  const explanationPanel = document.getElementById('explanation-panel');
+  const explanationText  = document.getElementById('explanation-text');
+
+  const prevBtn    = document.getElementById('prev-btn');
+  const nextBtn    = document.getElementById('next-btn');
+  const skipBtn    = document.getElementById('skip-btn');
+  const startBtn   = document.getElementById('start-btn');
+  const reviewBtn  = document.getElementById('review-btn');
+  const restartBtn = document.getElementById('restart-btn');
+
+  // ── Helpers ──────────────────────────────────────────────────────────────────
+  function showScreen(id) {
+    [startScreen, examScreen, resultsScreen].forEach(s => s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+  }
+
+  function sectionName(sectionId) {
+    const s = sections.find(x => x.id === sectionId);
+    return s ? s.title : `Section ${sectionId}`;
+  }
+
+  // ── Build question navigator ─────────────────────────────────────────────────
+  function buildQGrid() {
+    qGrid.innerHTML = '';
+    questions.forEach((q, i) => {
+      const dot = document.createElement('button');
+      dot.className = 'q-dot';
+      dot.textContent = i + 1;
+      dot.setAttribute('aria-label', `Go to question ${i + 1}`);
+      dot.addEventListener('click', () => { current = i; renderQuestion(); });
+      qGrid.appendChild(dot);
+    });
+  }
+
+  function updateQGrid() {
+    const dots = qGrid.querySelectorAll('.q-dot');
+    dots.forEach((dot, i) => {
+      dot.className = 'q-dot';
+      const q = questions[i];
+      if (i === current) {
+        dot.classList.add('current');
+      } else if (answers[q.id] !== undefined) {
+        const correct = answers[q.id] === q.correctAnswer;
+        dot.classList.add(correct ? 'answered-correct' : 'answered-wrong');
+      } else if (skipped.has(q.id)) {
+        dot.classList.add('skipped');
+      }
+    });
+  }
+
+  // ── Render current question ──────────────────────────────────────────────────
+  function renderQuestion() {
+    const q        = questions[current];
+    const answered = answers[q.id] !== undefined;
+    const total    = questions.length;
+
+    // Progress
+    const answeredCount = Object.keys(answers).length;
+    progressFill.style.width  = `${(answeredCount / total) * 100}%`;
+    progressLabel.textContent = `${answeredCount} / ${total} answered`;
+
+    // Meta badges
+    questionMeta.innerHTML = `
+      <span class="badge badge-number">Q ${current + 1} of ${total}</span>
+      <span class="badge badge-section">${sectionName(q.section)}</span>
+      ${q.caseStudy ? `<span class="badge badge-case">${q.caseStudy}</span>` : ''}
+    `;
+
+    // Question text
+    questionText.textContent = q.scenario;
+
+    // Options
+    optionsList.innerHTML = '';
+    ['A','B','C','D'].forEach(letter => {
+      const li    = document.createElement('li');
+      li.className = 'option-item';
+
+      const id    = `opt-${q.id}-${letter}`;
+      const radio = document.createElement('input');
+      radio.type  = 'radio';
+      radio.name  = `q-${q.id}`;
+      radio.id    = id;
+      radio.value = letter;
+      if (answers[q.id] === letter) radio.checked = true;
+
+      const label = document.createElement('label');
+      label.htmlFor = id;
+      label.innerHTML = `
+        <span class="option-letter">${letter}</span>
+        <span class="option-text">${q.options[letter]}</span>
+      `;
+
+      radio.addEventListener('change', () => {
+        if (answered) return;
+        submitAnswer(q, letter);
+      });
+
+      li.appendChild(radio);
+      li.appendChild(label);
+
+      if (answered) {
+        li.classList.add('disabled');
+        radio.disabled = true;
+        if (letter === q.correctAnswer) li.classList.add('correct');
+        if (answers[q.id] === letter && letter !== q.correctAnswer) li.classList.add('wrong');
+      }
+
+      optionsList.appendChild(li);
+    });
+
+    // Explanation
+    if (answered) {
+      explanationText.textContent = q.explanation;
+      explanationPanel.classList.add('show');
+    } else {
+      explanationPanel.classList.remove('show');
+    }
+
+    // Nav buttons
+    prevBtn.disabled = current === 0;
+    nextBtn.textContent = current === total - 1
+      ? (allAnsweredOrSkipped() ? 'Finish Exam →' : 'Next →')
+      : 'Next →';
+    skipBtn.style.display = answered ? 'none' : 'inline-flex';
+
+    updateQGrid();
+  }
+
+  function allAnsweredOrSkipped() {
+    return questions.every(q => answers[q.id] !== undefined || skipped.has(q.id));
+  }
+
+  function submitAnswer(q, letter) {
+    answers[q.id] = letter;
+    skipped.delete(q.id);
+    renderQuestion();
+  }
+
+  // ── Navigation ───────────────────────────────────────────────────────────────
+  prevBtn.addEventListener('click', () => {
+    if (current > 0) { current--; renderQuestion(); }
+  });
+
+  nextBtn.addEventListener('click', () => {
+    const isLast = current === questions.length - 1;
+    if (isLast && allAnsweredOrSkipped()) {
+      showResults();
+      return;
+    }
+    if (current < questions.length - 1) { current++; renderQuestion(); }
+  });
+
+  skipBtn.addEventListener('click', () => {
+    skipped.add(questions[current].id);
+    if (current < questions.length - 1) { current++; renderQuestion(); }
+    else { renderQuestion(); } // refresh nav buttons
+  });
+
+  // ── Start ────────────────────────────────────────────────────────────────────
+  startBtn.addEventListener('click', () => {
+    current = 0;
+    Object.keys(answers).forEach(k => delete answers[k]);
+    skipped.clear();
+    buildQGrid();
+    renderQuestion();
+    showScreen('exam-screen');
+  });
+
+  // ── Results ──────────────────────────────────────────────────────────────────
+  function showResults() {
+    // Calculate score
+    let correct = 0;
+    questions.forEach(q => {
+      if (answers[q.id] === q.correctAnswer) correct++;
+    });
+    const total = questions.length;
+    const pct   = Math.round((correct / total) * 100);
+    const pass  = pct >= 70;
+
+    // Score circle
+    const circle = document.getElementById('score-circle');
+    circle.style.setProperty('--pct', pct);
+    circle.style.background =
+      `conic-gradient(${pass ? '#34a853' : '#ea4335'} calc(${pct} * 1%), #dadce0 0)`;
+    document.getElementById('score-pct').textContent = pct + '%';
+    document.getElementById('score-sub').textContent = `${correct}/${total}`;
+
+    // Heading / message
+    document.getElementById('result-heading').textContent = pass
+      ? '🎉 Passed — Well Done!'
+      : '📚 Not Passed — Keep Practising';
+    document.getElementById('result-message').textContent = pass
+      ? `You scored ${correct} out of ${total} (${pct}%). You have demonstrated the architectural judgment expected of a Google Cloud Professional Cloud Architect.`
+      : `You scored ${correct} out of ${total} (${pct}%). A score of 70% or above is required. Review the explanations below to strengthen your understanding.`;
+
+    // Section breakdown
+    const sectionStats = {};
+    sections.forEach(s => { sectionStats[s.id] = { correct: 0, total: 0, title: s.title }; });
+    questions.forEach(q => {
+      sectionStats[q.section].total++;
+      if (answers[q.id] === q.correctAnswer) sectionStats[q.section].correct++;
+    });
+
+    const rows = document.getElementById('section-rows');
+    rows.innerHTML = '';
+    sections.forEach(s => {
+      const st  = sectionStats[s.id];
+      if (st.total === 0) return;
+      const pct = Math.round((st.correct / st.total) * 100);
+      const row = document.createElement('div');
+      row.className = 'section-row';
+      row.innerHTML = `
+        <span class="section-name">${s.title.replace('Designing and Planning a Cloud Solution Architecture','Designing & Planning').replace('Managing and Provisioning a Solution Infrastructure','Managing & Provisioning').replace('Designing for Security and Compliance','Security & Compliance').replace('Analyzing and Optimizing Technical and Business Processes','Optimizing Processes').replace('Managing Implementation','Managing Implementation').replace('Ensuring Solution and Operations Reliability','Reliability')}</span>
+        <div class="section-bar-track"><div class="section-bar-fill" style="width:${pct}%;background:${pct>=70?'#34a853':'#ea4335'}"></div></div>
+        <span class="section-score">${st.correct}/${st.total}</span>
+      `;
+      rows.appendChild(row);
+    });
+
+    showScreen('results-screen');
+    document.getElementById('review-section').classList.remove('active');
+  }
+
+  // ── Review ───────────────────────────────────────────────────────────────────
+  reviewBtn.addEventListener('click', () => {
+    const reviewSection = document.getElementById('review-section');
+
+    if (reviewSection.classList.contains('active')) {
+      reviewSection.classList.remove('active');
+      reviewBtn.textContent = 'Review Answers';
+      return;
+    }
+
+    reviewSection.classList.add('active');
+    reviewBtn.textContent = 'Hide Review';
+
+    let html = '<div class="review-header"><h2>Answer Review</h2></div>';
+
+    questions.forEach((q, idx) => {
+      const userAnswer = answers[q.id];
+      const correct    = userAnswer === q.correctAnswer;
+      const statusIcon = userAnswer === undefined ? '⊘' : (correct ? '✓' : '✗');
+      const statusColor = userAnswer === undefined ? '#80868b' : (correct ? '#34a853' : '#ea4335');
+
+      html += `
+        <div class="question-card" style="margin-bottom:16px;">
+          <div class="question-meta">
+            <span class="badge badge-number">Q ${idx + 1}</span>
+            <span class="badge badge-section">${sectionName(q.section)}</span>
+            ${q.caseStudy ? `<span class="badge badge-case">${q.caseStudy}</span>` : ''}
+            <span style="margin-left:auto;font-weight:700;color:${statusColor}">${statusIcon}</span>
+          </div>
+          <p class="question-text">${q.scenario}</p>
+          <ul class="options-list">
+      `;
+
+      ['A','B','C','D'].forEach(letter => {
+        let cls = 'option-item disabled';
+        if (letter === q.correctAnswer) cls += ' correct';
+        else if (userAnswer === letter) cls += ' wrong';
+
+        html += `
+          <li class="${cls}">
+            <label style="cursor:default;">
+              <span class="option-letter">${letter}</span>
+              <span class="option-text">${q.options[letter]}</span>
+            </label>
+          </li>
+        `;
+      });
+
+      html += `
+          </ul>
+          <div class="explanation-panel show">
+            <h4>Explanation</h4>
+            <p>${q.explanation}</p>
+          </div>
+          ${userAnswer === undefined ? '<p style="margin-top:10px;font-size:.85rem;color:#80868b">⊘ This question was skipped.</p>' : ''}
+        </div>
+      `;
+    });
+
+    reviewSection.innerHTML = html;
+    reviewSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+
+  // ── Restart ──────────────────────────────────────────────────────────────────
+  restartBtn.addEventListener('click', () => {
+    Object.keys(answers).forEach(k => delete answers[k]);
+    skipped.clear();
+    current = 0;
+    document.getElementById('review-section').classList.remove('active');
+    showScreen('start-screen');
+  });
+})();
+</script>
+</body>
+</html>
