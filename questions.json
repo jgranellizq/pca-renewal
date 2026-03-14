@@ -1,8 +1,8 @@
 {
   "exam": {
     "title": "Google Cloud Professional Cloud Architect Renewal Exam",
-    "version": "1.0",
-    "totalQuestions": 25,
+    "version": "2.0",
+    "totalQuestions": 50,
     "references": [
       "https://services.google.com/fh/files/misc/professional_cloud_architect_renewal_exam_guide_eng.pdf",
       "https://services.google.com/fh/files/misc/cymbal_retail_case_study_english.pdf",
@@ -53,34 +53,6 @@
     {
       "id": 2,
       "section": 1,
-      "caseStudy": "Altostrat Media",
-      "scenario": "Altostrat Media ingests live video streams from broadcast events and must make recordings available for on-demand viewing within 5 minutes of broadcast completion. They process approximately 500 concurrent live streams at peak. The engineering team wants to use managed Google Cloud services rather than building custom infrastructure. Which architecture best meets these requirements?",
-      "options": {
-        "A": "Run FFmpeg on Compute Engine managed instance groups behind a load balancer, storing output in Cloud Storage.",
-        "B": "Use the Live Stream API to ingest and record live streams to Cloud Storage, then trigger the Transcoder API via Pub/Sub to produce on-demand formats.",
-        "C": "Use Dataflow with a custom media processing pipeline writing output segments directly to Cloud Storage.",
-        "D": "Deploy Cloud Run jobs triggered by webhooks for each incoming live stream to handle transcoding."
-      },
-      "correctAnswer": "B",
-      "explanation": "The Live Stream API is Google Cloud's fully managed service for live video ingestion and recording, supporting high concurrency without infrastructure provisioning. The Transcoder API handles format conversion to on-demand streaming formats (HLS, MPEG-DASH). Using Pub/Sub between them provides a decoupled, scalable architecture. Custom FFmpeg on Compute Engine (A) requires significant operational overhead. Dataflow (C) is designed for data processing pipelines, not media transcoding. Cloud Run jobs (D) would require custom media processing code and wouldn't scale as efficiently."
-    },
-    {
-      "id": 3,
-      "section": 1,
-      "caseStudy": null,
-      "scenario": "Your organization has separate production, staging, and development teams. Each team needs full control of their own environment, but all environments must share centralized networking services including DNS, Cloud NAT, and firewall configurations managed by a network operations team. Teams must be prevented from directly accessing resources in other teams' environments. Which network architecture fulfills these requirements with the lowest operational overhead?",
-      "options": {
-        "A": "Create a Shared VPC host project for each environment with separate service projects for workloads.",
-        "B": "Create separate standalone VPCs for each environment and use VPC Peering to a central shared-services VPC, with org policies preventing direct peering between environments.",
-        "C": "Deploy all environments in a single VPC, using subnet-level firewall rules to enforce isolation between teams.",
-        "D": "Use Cloud Interconnect to connect separate on-premises segments mapped to each environment in Google Cloud."
-      },
-      "correctAnswer": "B",
-      "explanation": "Separate VPCs per environment ensure strong network isolation, preventing cross-environment access by default. VPC Peering to a central shared-services VPC gives each environment access to DNS, Cloud NAT, and shared services while maintaining isolation from other environments. Peering is non-transitive, so production and development cannot communicate directly even through the shared VPC. Shared VPC (A) centralizes networking but doesn't provide the same level of environment isolation at the network layer. A single VPC (C) relies entirely on firewall rules, which are easier to misconfigure, and provides weaker isolation. Cloud Interconnect (D) is for connecting on-premises networks, not for segmenting Google Cloud environments."
-    },
-    {
-      "id": 4,
-      "section": 1,
       "caseStudy": "Cymbal Retail",
       "scenario": "Cymbal Retail runs 80 microservices on-premises, managed with Docker Compose. The team has deep Docker expertise but limited Kubernetes experience. They want to migrate to Google Cloud to gain automatic scaling, pay only for actual resource consumption, and minimize the operational burden of managing infrastructure. Most microservices are stateless HTTP APIs. Which compute solution best meets their requirements?",
       "options": {
@@ -93,7 +65,7 @@
       "explanation": "Cloud Run is the ideal fit for stateless Docker-based HTTP microservices. It runs containers natively, scales to zero when idle (true pay-per-use), and requires no Kubernetes expertise. The team can use their existing Docker knowledge directly. GKE Autopilot (B) still requires Kubernetes deployment manifests and concepts like Services, Deployments, and Ingress. GKE Standard (A) adds node pool management overhead on top of Kubernetes complexity. App Engine Flexible (D) is a managed platform but offers less flexibility for diverse microservice configurations and has minimum instance requirements that prevent true scale-to-zero."
     },
     {
-      "id": 5,
+      "id": 3,
       "section": 1,
       "caseStudy": "Cymbal Retail",
       "scenario": "Cymbal Retail wants to build a real-time customer behavior analytics platform. The platform must ingest clickstream events at 100,000 events per second, support ad-hoc SQL queries on historical data spanning 3 years, and enable data scientists to train machine learning models on the full dataset. Which combination of Google Cloud services best addresses all three requirements?",
@@ -107,21 +79,63 @@
       "explanation": "This is Google Cloud's canonical streaming analytics architecture. Cloud Pub/Sub handles high-throughput event ingestion without data loss. Dataflow (Apache Beam) processes events in real time with exactly-once semantics. BigQuery provides a serverless data warehouse supporting ad-hoc SQL at petabyte scale. Vertex AI integrates natively with BigQuery for ML training. Option B introduces self-managed Kafka, increasing operational overhead. Option C uses IoT Core (deprecated) and batch processing, missing the real-time requirement. Option D uses Cloud SQL, which is a transactional database unsuitable for 3 years of high-volume clickstream analytics."
     },
     {
-      "id": 6,
-      "section": 3,
-      "caseStudy": null,
-      "scenario": "A financial services organization requires that encryption keys for all sensitive customer data stored in Google Cloud must be controlled by the customer (not Google), stored in FIPS 140-2 Level 3 validated hardware, and rotated automatically every 90 days. Which encryption solution meets all three requirements?",
+      "id": 4,
+      "section": 1,
+      "caseStudy": "Cymbal Retail",
+      "scenario": "Cymbal Retail has an existing 10 Gbps private WAN connection terminating in their primary data center and must connect their on-premises network to a Google Cloud VPC for hybrid workloads. They require private IP routing, consistent low-latency bandwidth, and an SLA-backed physical connection. Their on-premises edge router supports BGP. Which connectivity option should you recommend?",
       "options": {
-        "A": "Use Google-managed default encryption, which includes automatic key rotation every 90 days.",
-        "B": "Use Customer-Managed Encryption Keys (CMEK) with Cloud Key Management Service (Cloud KMS) software-backed keys.",
-        "C": "Use Customer-Managed Encryption Keys (CMEK) with Cloud HSM using hardware-backed keys and set a 90-day rotation schedule.",
-        "D": "Encrypt all data client-side before uploading to Cloud Storage using AES-256 with application-managed keys."
+        "A": "Cloud VPN with multiple HA tunnels aggregated via ECMP for higher throughput.",
+        "B": "Dedicated Interconnect with a Cloud Router using BGP to exchange routes between on-premises and the VPC.",
+        "C": "Direct Peering with Google's edge network to access the VPC privately.",
+        "D": "Partner Interconnect through a service provider co-located in the same facility."
       },
-      "correctAnswer": "C",
-      "explanation": "Cloud HSM provides FIPS 140-2 Level 3 validated hardware security modules, satisfying the hardware storage requirement. CMEK ensures the customer controls key access and the key cannot be used by Google without authorization. Automatic rotation can be configured within Cloud KMS/HSM at any schedule including every 90 days. Option A uses Google-managed keys, which do not give the customer exclusive control. Option B (Cloud KMS software keys) does not satisfy the FIPS 140-2 Level 3 hardware requirement—that requires Cloud HSM specifically. Option D (client-side encryption) places the full key management burden on the application and doesn't benefit from Google's KMS integration with storage services."
+      "correctAnswer": "B",
+      "explanation": "Dedicated Interconnect provides a private, high-bandwidth (10 or 100 Gbps) physical connection that bypasses the public internet and is backed by a Google SLA. Cloud Router uses BGP to dynamically exchange routes. Cloud VPN tops out at approximately 3 Gbps per tunnel and has no physical-layer SLA. Direct Peering reaches Google public services such as Workspace and YouTube, not the VPC. Partner Interconnect is appropriate when co-location space or Dedicated capacity is unavailable; here the existing physical connection is already in place."
+    },
+    {
+      "id": 5,
+      "section": 1,
+      "caseStudy": "Cymbal Retail",
+      "scenario": "Cymbal Retail backend team manages 12 microservices. Six services experience near-zero traffic overnight and peak at 1,000 RPS during promotional events. The remaining six handle steady-state internal processing at approximately 50 RPS around the clock. The team's primary goals are to reduce operational overhead and minimize infrastructure costs. What architecture should you recommend?",
+      "options": {
+        "A": "Move all 12 services to Cloud Run, configuring minimum instances to eliminate cold starts for the steady-state services.",
+        "B": "Move all 12 services to GKE Autopilot with Horizontal Pod Autoscaler and scale-to-zero configuration.",
+        "C": "Keep steady-state services on Compute Engine managed instance groups and move variable-traffic services to Cloud Run.",
+        "D": "Move variable-traffic services to Cloud Run and run steady-state services on Compute Engine sole-tenant nodes for performance isolation."
+      },
+      "correctAnswer": "A",
+      "explanation": "Cloud Run is ideal for both traffic profiles. Variable-traffic services scale to zero when idle, eliminating off-peak costs. Steady-state services use Cloud Run minimum instances to avoid cold starts while still reducing operational overhead compared to VMs or self-managed containers. GKE Autopilot (B) is powerful but introduces more infrastructure management than Cloud Run. Options C and D retain Compute Engine, which increases operational overhead contrary to the team goal. Sole-tenant nodes (D) are for specialized compliance or licensing requirements, not general steady-state workloads."
+    },
+    {
+      "id": 6,
+      "section": 1,
+      "caseStudy": "Cymbal Retail",
+      "scenario": "Cymbal Retail order management system currently calls inventory, fulfillment, and notification services synchronously for every order placed. During peak promotions, slow downstream services cause order API latency spikes and cascading failures that impact the checkout experience. The architecture team wants to decouple these services to improve resilience and throughput. What architecture should you recommend?",
+      "options": {
+        "A": "Increase timeout thresholds for all synchronous API calls to absorb downstream slowness.",
+        "B": "Implement an event-driven architecture using Pub/Sub: the order service publishes an order-placed event; inventory, fulfillment, and notification services each subscribe independently; use dead-letter topics for failed message handling.",
+        "C": "Use Cloud Tasks to queue synchronous API calls with exponential-backoff retries.",
+        "D": "Consolidate all services into a single monolithic application to eliminate inter-service network calls."
+      },
+      "correctAnswer": "B",
+      "explanation": "Pub/Sub decouples producers from consumers asynchronously. The order service publishes a single event and immediately returns without waiting for downstream services. Each subscriber processes independently at its own pace. Dead-letter topics handle poison messages. This eliminates synchronous coupling and cascading failures. Increasing timeouts (A) masks the problem without solving it. Cloud Tasks (C) queues individual API calls but retains tight coupling. A monolith (D) reintroduces a single point of failure and increases deployment coupling."
     },
     {
       "id": 7,
+      "section": 1,
+      "caseStudy": "Altostrat Media",
+      "scenario": "Altostrat Media ingests live video streams from broadcast events and must make recordings available for on-demand viewing within 5 minutes of broadcast completion. They process approximately 500 concurrent live streams at peak. The engineering team wants to use managed Google Cloud services rather than building custom infrastructure. Which architecture best meets these requirements?",
+      "options": {
+        "A": "Run FFmpeg on Compute Engine managed instance groups behind a load balancer, storing output in Cloud Storage.",
+        "B": "Use the Live Stream API to ingest and record live streams to Cloud Storage, then trigger the Transcoder API via Pub/Sub to produce on-demand formats.",
+        "C": "Use Dataflow with a custom media processing pipeline writing output segments directly to Cloud Storage.",
+        "D": "Deploy Cloud Run jobs triggered by webhooks for each incoming live stream to handle transcoding."
+      },
+      "correctAnswer": "B",
+      "explanation": "The Live Stream API is Google Cloud's fully managed service for live video ingestion and recording, supporting high concurrency without infrastructure provisioning. The Transcoder API handles format conversion to on-demand streaming formats (HLS, MPEG-DASH). Using Pub/Sub between them provides a decoupled, scalable architecture. Custom FFmpeg on Compute Engine (A) requires significant operational overhead. Dataflow (C) is designed for data processing pipelines, not media transcoding. Cloud Run jobs (D) would require custom media processing code and wouldn't scale as efficiently."
+    },
+    {
+      "id": 8,
       "section": 1,
       "caseStudy": "Altostrat Media",
       "scenario": "Altostrat Media stores all video content in a single US-based Cloud Storage bucket. As their global user base grows, international viewers in Europe and Asia Pacific report high video start times and buffering. The team needs to minimize latency for all viewers while keeping infrastructure costs predictable. Which architecture change best addresses this requirement?",
@@ -135,133 +149,49 @@
       "explanation": "Cloud CDN caches video content at Google's 100+ edge Points of Presence (PoPs) worldwide, dramatically reducing latency for international viewers without replicating the origin bucket. The global HTTP(S) load balancer routes requests to the nearest edge cache, serving cached content with minimal round-trip time. When a cache miss occurs, the edge fetches from the US origin once and then serves subsequent requests from cache. Option B requires daily replication jobs and doesn't provide real-time propagation. Option C (multi-region bucket) distributes storage but doesn't provide edge caching; it still routes traffic to a regional storage endpoint. Option D (self-managed caching proxies) introduces significant operational overhead with less efficiency than Cloud CDN."
     },
     {
-      "id": 8,
-      "section": 6,
-      "caseStudy": "Cymbal Retail",
-      "scenario": "Cymbal Retail's order management system processes all retail orders. The business has defined a Recovery Time Objective (RTO) of 1 hour and a Recovery Point Objective (RPO) of 15 minutes for this system. The company wants to meet these targets at the lowest possible cost. Which disaster recovery strategy should you implement?",
-      "options": {
-        "A": "Hot standby (active-active): Run full-capacity deployments in two regions simultaneously with synchronous replication.",
-        "B": "Warm standby: Run a reduced-capacity replica in a secondary region with asynchronous replication at 15-minute intervals and automated failover.",
-        "C": "Cold standby: Define infrastructure in Terraform, take database backups every 15 minutes, and restore from backup to a new environment on failover.",
-        "D": "Pilot Light: Maintain only the database in a secondary region with replication; provision application servers only during a disaster."
-      },
-      "correctAnswer": "B",
-      "explanation": "Warm standby achieves the 1-hour RTO because a reduced-capacity environment is already running and can scale up within an hour. The 15-minute RPO is met by asynchronous replication at 15-minute intervals. This is the most cost-effective approach that satisfies both constraints. Option A (active-active) exceeds requirements and costs significantly more by running full capacity in two regions. Option C (cold standby) risks failing the 1-hour RTO because provisioning infrastructure from scratch with Terraform and restoring from backup typically takes longer than an hour. Option D (pilot light) may meet RPO but requires application server provisioning during a disaster, which risks missing the 1-hour RTO."
-    },
-    {
       "id": 9,
-      "section": 3,
-      "caseStudy": null,
-      "scenario": "Your security team requires that only container images that have been built by your internal CI pipeline, vulnerability-scanned, and explicitly approved can be deployed to your GKE production cluster. Unsigned or externally sourced images must be rejected at deploy time. Which Google Cloud mechanism enforces this requirement?",
+      "section": 1,
+      "caseStudy": "Altostrat Media",
+      "scenario": "Altostrat Media wants to build a personalized content recommendation system using 3 years of viewer history (watch time, ratings, search history). The data science team wants to minimize the time from data to production predictions and reduce ML infrastructure management. The team has limited MLOps experience. Which approach best meets these requirements?",
       "options": {
-        "A": "Configure Kubernetes Pod Security Standards with the 'restricted' policy to limit container privileges.",
-        "B": "Enable Artifact Registry vulnerability scanning and configure a deployment pipeline that blocks images with critical CVEs.",
-        "C": "Implement Binary Authorization with a policy requiring attestations from your CI pipeline before deployment to GKE.",
-        "D": "Use Kubernetes Network Policies to restrict communication to only approved container image sources."
+        "A": "Train a custom collaborative filtering TensorFlow model on Vertex AI Workbench and deploy it to a Vertex AI Prediction Endpoint.",
+        "B": "Use BigQuery ML to create a matrix factorization model directly in BigQuery using SQL, and serve predictions from BigQuery ML using the ML.PREDICT function.",
+        "C": "Deploy a self-managed Apache Spark MLlib recommendation model on Dataproc clusters for training and a separate Flask API on GKE for serving.",
+        "D": "Use Vertex AI AutoML Tabular to train a recommendation scoring model on viewer history features and deploy to a managed Vertex AI Endpoint."
       },
-      "correctAnswer": "C",
-      "explanation": "Binary Authorization is Google Cloud's deploy-time security control for GKE (and Cloud Run). It enforces a policy requiring attestations—cryptographic signatures created by authorized attestors—before allowing an image to be deployed. Your CI pipeline acts as an attestor after completing scanning and approval steps. Images that haven't been attested are rejected at deploy time. Option A (Pod Security Standards) controls runtime behavior like privilege escalation and host namespace access, but does not verify image provenance. Option B (vulnerability scanning) identifies vulnerabilities but does not prevent deployment of unscanned or unapproved images. Option D (Network Policies) controls pod-to-pod network traffic, not container image deployment."
+      "correctAnswer": "D",
+      "explanation": "Vertex AI AutoML Tabular provides a fully managed, no-code/low-code ML training and deployment solution. The team provides structured viewer history data, AutoML handles feature engineering, model selection, hyperparameter tuning, and training. The resulting model is deployed to a managed Vertex AI Endpoint that auto-scales with no infrastructure management. This minimizes time to production and MLOps overhead for a team with limited experience. Option A (custom TensorFlow) requires significant ML engineering expertise and infrastructure management. Option B (BigQuery ML) is excellent for batch predictions but has limited support for real-time low-latency serving at scale needed for live recommendations. Option C (Spark MLlib on Dataproc) requires managing cluster infrastructure, writing custom Spark code, and operating a separate serving API—maximizing operational overhead."
     },
     {
       "id": 10,
-      "section": 4,
-      "caseStudy": "Cymbal Retail",
-      "scenario": "Cymbal Retail's marketing team runs daily reports in BigQuery against a partitioned fact table containing 500 billion rows and 5 years of purchase history (approximately 200 TB). Most queries filter on purchase_date range and then group by region and product_category. Query performance is poor and costs are high. Which single optimization provides the greatest improvement for this specific query pattern?",
+      "section": 1,
+      "caseStudy": "Altostrat Media",
+      "scenario": "Altostrat Media delivers video content globally through a custom web player. Users in Southeast Asia and South America report high Time-to-First-Byte (TTFB). Origin content is stored in Cloud Storage in a US region and served through an HTTPS Cloud Load Balancer. The team wants to reduce TTFB and improve cache-hit rates with minimal changes to application code. What should you recommend?",
       "options": {
-        "A": "Increase the BI Engine reservation to cache the entire 200 TB table in memory.",
-        "B": "Partition the table by purchase_date (DATE) and cluster by region and product_category.",
-        "C": "Create materialized views pre-aggregated by purchase_date, region, and product_category for each common report.",
-        "D": "Export data older than 1 year to Cloud Storage and query it with BigQuery external tables using Hive partitioning."
+        "A": "Create regional Cloud Storage buckets in Southeast Asia and South America and update the origin configuration.",
+        "B": "Enable Cloud CDN on the Cloud Load Balancing backend pointing to Cloud Storage and configure cache-control headers on objects.",
+        "C": "Create a multi-region Cloud Storage bucket spanning all target geographies.",
+        "D": "Deploy regional Compute Engine instances in each target region to cache and serve content."
       },
       "correctAnswer": "B",
-      "explanation": "Partitioning by purchase_date means BigQuery only scans partitions within the query's date range, eliminating the need to read irrelevant data. Clustering within each partition by region then product_category ensures data with similar values is co-located on disk, so range and equality filters on those columns perform block-level pruning. This optimization directly matches the described query pattern and reduces both scan cost and execution time. Option A (BI Engine) is limited to a maximum reservation size far below 200 TB. Option C (materialized views) requires predefined query shapes and adds write overhead. Option D (external tables) reduces storage cost but increases query latency compared to native BigQuery storage."
+      "explanation": "Cloud CDN integrates natively with Cloud Load Balancing to cache objects at Google globally distributed edge PoPs, dramatically reducing TTFB for remote users with minimal configuration changes. Proper Cache-Control headers maximize hit ratios. Multi-region buckets (C) improve data durability and availability but do not cache at the edge for low latency. Regional buckets (A) require managing multiple origins. Regional Compute Engine (D) introduces significant operational overhead and cost."
     },
     {
       "id": 11,
-      "section": 5,
-      "caseStudy": "Cymbal Retail",
-      "scenario": "Cymbal Retail wants to implement a fully Google Cloud-native CI/CD pipeline for their containerized microservices. The pipeline must automatically run unit tests, build Docker images, scan images for critical vulnerabilities, and deploy to a GKE Autopilot cluster with progressive rollout and approval gates before production deployment. Which combination of Google Cloud services best implements this pipeline?",
+      "section": 1,
+      "caseStudy": null,
+      "scenario": "Your organization has separate production, staging, and development teams. Each team needs full control of their own environment, but all environments must share centralized networking services including DNS, Cloud NAT, and firewall configurations managed by a network operations team. Teams must be prevented from directly accessing resources in other teams' environments. Which network architecture fulfills these requirements with the lowest operational overhead?",
       "options": {
-        "A": "Cloud Build (CI: test, build, scan) → Artifact Registry (image storage) → Cloud Deploy (CD: progressive delivery to GKE).",
-        "B": "Jenkins on Compute Engine (CI) → Docker Hub (image storage) → kubectl scripts in Cloud Build (CD to GKE).",
-        "C": "GitHub Actions (CI) → Amazon ECR (image storage) → Cloud Deploy (CD to GKE).",
-        "D": "Cloud Functions triggered by Cloud Source Repositories commits (build) → Cloud Storage (artifact storage) → GKE rolling update via startup script."
+        "A": "Create a Shared VPC host project for each environment with separate service projects for workloads.",
+        "B": "Create separate standalone VPCs for each environment and use VPC Peering to a central shared-services VPC, with org policies preventing direct peering between environments.",
+        "C": "Deploy all environments in a single VPC, using subnet-level firewall rules to enforce isolation between teams.",
+        "D": "Use Cloud Interconnect to connect separate on-premises segments mapped to each environment in Google Cloud."
       },
-      "correctAnswer": "A",
-      "explanation": "Cloud Build is Google Cloud's native managed CI service, executing test, build, and scan steps defined in a cloudbuild.yaml file. Artifact Registry provides integrated vulnerability scanning, image storage, and access control within Google Cloud. Cloud Deploy provides managed progressive delivery (canary, blue-green) to GKE with approval gates, rollback, and audit trails. This is entirely Google Cloud-native and managed. Option B uses self-managed Jenkins and Docker Hub, introducing operational overhead. Option C mixes GitHub Actions and Amazon ECR, creating external dependencies. Option D uses Cloud Functions and startup scripts, which lack proper CI/CD pipeline features like progressive delivery and approval gates."
+      "correctAnswer": "B",
+      "explanation": "Separate VPCs per environment ensure strong network isolation, preventing cross-environment access by default. VPC Peering to a central shared-services VPC gives each environment access to DNS, Cloud NAT, and shared services while maintaining isolation from other environments. Peering is non-transitive, so production and development cannot communicate directly even through the shared VPC. Shared VPC (A) centralizes networking but doesn't provide the same level of environment isolation at the network layer. A single VPC (C) relies entirely on firewall rules, which are easier to misconfigure, and provides weaker isolation. Cloud Interconnect (D) is for connecting on-premises networks, not for segmenting Google Cloud environments."
     },
     {
       "id": 12,
-      "section": 3,
-      "caseStudy": "Altostrat Media",
-      "scenario": "Altostrat Media has content licensing agreements that prohibit streaming specific video titles to users located in certain countries. The restriction must be enforced at the network perimeter before requests reach the application servers, to prevent any possibility of unauthorized access even through API abuse. Which Google Cloud mechanism should you use?",
-      "options": {
-        "A": "Cloud CDN custom headers with Cloud Functions to check viewer geolocation before serving cached content.",
-        "B": "Cloud Armor security policies with geo-restriction rules applied to the global external HTTP(S) load balancer.",
-        "C": "Identity-Aware Proxy (IAP) with custom access levels configured to deny traffic from restricted countries.",
-        "D": "VPC firewall ingress rules blocking known IP ranges associated with restricted countries."
-      },
-      "correctAnswer": "B",
-      "explanation": "Cloud Armor evaluates security policy rules at Google's edge network infrastructure before requests reach the load balancer backends, providing enforcement at the true network perimeter. Geo-restriction rules can block or allow traffic based on the source country code (ISO 3166-1 alpha 2) derived from the client IP. This enforcement happens before any application code runs. Option A (Cloud CDN + Cloud Functions) requires application-layer processing and adds latency. Option C (IAP) is designed for identity-based access control, not geographic restriction at the network layer. Option D (VPC firewall rules) apply inside the VPC, after traffic has already traversed the load balancer; they don't block at the Google edge and are difficult to maintain as IP ranges change constantly."
-    },
-    {
-      "id": 13,
-      "section": 3,
-      "caseStudy": null,
-      "scenario": "Your organization stores sensitive data in BigQuery and Cloud Storage. The security team has identified two data exfiltration risks: (1) data could be copied from BigQuery to tables in external, unauthorized Google Cloud projects; and (2) Cloud Storage buckets could be read from VMs outside your corporate VPC. Which single Google Cloud feature mitigates both risks through perimeter-based access controls?",
-      "options": {
-        "A": "Organization policies restricting resource location to approved regions.",
-        "B": "VPC Service Controls service perimeters protecting BigQuery and Cloud Storage APIs.",
-        "C": "Cloud Armor WAF rules blocking unauthorized API calls to BigQuery and Cloud Storage.",
-        "D": "IAM deny policies at the organization level preventing cross-project data movement."
-      },
-      "correctAnswer": "B",
-      "explanation": "VPC Service Controls allows you to define service perimeters that restrict access to Google Cloud APIs (including BigQuery and Cloud Storage) based on identity attributes and network origin. Once data is inside a perimeter, it cannot be read by identities or networks outside the perimeter, preventing exfiltration to unauthorized projects or from outside your VPC. Option A (resource location policies) restricts where resources can be created geographically, not who can access them. Option C (Cloud Armor) operates on HTTP/S traffic to load-balanced endpoints, not on direct Google API calls. Option D (IAM deny policies) controls who can call APIs but does not prevent authorized users from exfiltrating data to external projects once they have legitimate access."
-    },
-    {
-      "id": 14,
-      "section": 2,
-      "caseStudy": "Cymbal Retail",
-      "scenario": "Cymbal Retail's e-commerce checkout service runs on GKE Autopilot. During major promotional events, traffic spikes from 100 requests/second to 10,000 requests/second within 3 minutes. CPU-based autoscaling is reacting too slowly, causing request failures during the initial ramp-up. What scaling configuration minimizes failures during these rapid traffic spikes?",
-      "options": {
-        "A": "Configure the Horizontal Pod Autoscaler to scale on CPU utilization with a target of 30% and set minReplicas to 100.",
-        "B": "Configure the Horizontal Pod Autoscaler on a custom metric (requests per second per pod) exported via the Custom Metrics Adapter, combined with GKE Autopilot's automatic node provisioning.",
-        "C": "Use the Vertical Pod Autoscaler to increase resource limits dynamically as traffic grows.",
-        "D": "Pre-scale the deployment manually to maximum capacity before each promotional event using a Cloud Scheduler job."
-      },
-      "correctAnswer": "B",
-      "explanation": "Custom metrics-based HPA using requests per second as the scaling signal is more responsive to traffic patterns than CPU utilization. CPU typically lags traffic changes by 30–60 seconds, whereas request rate immediately reflects incoming load. GKE Autopilot automatically provisions additional nodes when pod demand increases, removing the node management burden. Option A (CPU-based with low target) may still lag traffic ramp-up and forces over-provisioning at idle. Option C (VPA) adjusts pod resource sizes, not pod count; it also requires pod restarts which causes disruption. Option D (manual pre-scaling) requires operational intervention and wastes resources outside promotional windows."
-    },
-    {
-      "id": 15,
-      "section": 6,
-      "caseStudy": "Altostrat Media",
-      "scenario": "Altostrat Media's SRE team wants to build a monitoring strategy that detects viewer-impacting issues before users submit complaints. The service currently monitors CPU and memory utilization on streaming servers. The team wants to shift to a more proactive, user-experience-focused approach. Which observability strategy should you recommend?",
-      "options": {
-        "A": "Alert on infrastructure thresholds: CPU > 80%, memory > 90%, and disk utilization > 85% across all streaming servers.",
-        "B": "Create Cloud Monitoring uptime checks on each service endpoint and alert on any downtime detected.",
-        "C": "Define Service Level Indicators (SLIs) measuring stream start latency, buffering ratio, and error rate; create SLOs for each; and alert on SLO burn rate exceeding budget thresholds.",
-        "D": "Configure Cloud Logging log-based alerts to trigger on ERROR and CRITICAL severity log entries from streaming services."
-      },
-      "correctAnswer": "C",
-      "explanation": "SLI/SLO-based monitoring is the SRE best practice for detecting user-impacting issues proactively. SLIs like stream start latency, buffering ratio, and error rate directly measure viewer experience. Alerting on SLO burn rate (the rate at which the error budget is being consumed) provides early warning: if the burn rate is high, the team can act before the SLO is breached and before users notice widespread issues. Option A (infrastructure alerts) is cause-based monitoring that generates false alarms on metrics that don't always correlate with user impact. Option B (uptime checks) only detect complete service unavailability, missing degraded performance. Option D (log-based alerts) is reactive and generates noise from transient errors that may not affect overall user experience."
-    },
-    {
-      "id": 16,
-      "section": 3,
-      "caseStudy": "Cymbal Retail",
-      "scenario": "A PCI DSS audit of Cymbal Retail's Google Cloud environment identifies a finding: employees in the analytics team can query raw credit card numbers stored in a BigQuery table, but only the fraud detection team requires access to full card numbers. The recommended remediation must enforce field-level access control within BigQuery without moving the data to a different system. Which solution directly addresses this finding?",
-      "options": {
-        "A": "Encrypt the BigQuery dataset with a CMEK key only shared with the fraud detection team's service accounts.",
-        "B": "Apply BigQuery column-level security using policy tags and Identity and Access Management (IAM) data policies to restrict access to sensitive columns, using Cloud DLP to mask data for unauthorized users.",
-        "C": "Create separate BigQuery datasets with only non-sensitive columns copied to the analytics dataset using a scheduled query.",
-        "D": "Use BigQuery authorized views exposing only non-sensitive columns to the analytics team, and grant the fraud detection team direct table access."
-      },
-      "correctAnswer": "B",
-      "explanation": "BigQuery column-level security using policy tags (integrated with Data Catalog) enables fine-grained IAM control at the individual column level. Unauthorized users (analytics team) can be denied access to sensitive columns using IAM data policies; Cloud DLP can mask or tokenize those columns for users without the required role. This is enforced natively within BigQuery without data duplication. Option A (CMEK) controls storage-level key access but does not provide column-level query restrictions—the analytics team would still see all columns if they have table-level read access. Option C (copying data to a separate dataset) creates data duplication and synchronization challenges. Option D (authorized views) is a valid but less granular approach that requires maintaining separate view definitions and doesn't dynamically mask data for different user roles."
-    },
-    {
-      "id": 17,
       "section": 1,
       "caseStudy": null,
       "scenario": "Your enterprise has adopted a hybrid strategy with workloads running on Google Cloud, on-premises data centers, and a secondary cloud provider. The platform team needs to enforce consistent Kubernetes configuration policies (e.g., required labels, resource limits, namespace quotas), manage application deployments, and monitor compliance across all clusters from a single control plane. Which Google Cloud solution provides this capability?",
@@ -275,18 +205,88 @@
       "explanation": "Anthos is Google Cloud's multi-cloud and hybrid application management platform. Anthos Config Management uses Git repositories as the source of truth for Kubernetes configuration and policies, automatically synchronizing desired state across all registered clusters regardless of where they run (GKE, on-premises with Anthos clusters, or other cloud providers). Policy Controller enforces OPA-based guardrails across all clusters. Option A (Cloud Monitoring) provides observability but not policy enforcement or configuration management. Option C (BigQuery Omni) is for cross-cloud data analytics, not infrastructure policy management. Option D (Cloud Interconnect) provides network connectivity but cannot extend a single Kubernetes control plane to non-GKE environments."
     },
     {
-      "id": 18,
-      "section": 4,
-      "caseStudy": "Cymbal Retail",
-      "scenario": "Cymbal Retail's development team uses Compute Engine VMs for feature development and testing. Utilization analysis shows that VMs run 24/7 but are only actively used for 8 hours per day on weekdays. Development VMs account for 60% of the monthly compute budget. Which cost optimization strategy reduces spend most effectively while maintaining developer productivity?",
+      "id": 13,
+      "section": 1,
+      "caseStudy": null,
+      "scenario": "Your enterprise has 15 business units, each requiring isolated billing, separate IAM policies, and distinct network boundaries. Several business units share common infrastructure such as centralized logging, security tooling, and a Shared VPC. You must design a Google Cloud resource hierarchy that supports these requirements. What is the recommended approach?",
       "options": {
-        "A": "Convert all development VMs to Spot (preemptible) instances to reduce hourly costs by up to 91%.",
-        "B": "Configure VM instance schedules to automatically stop VMs after business hours and on weekends, and start them at the beginning of each workday.",
-        "C": "Purchase 1-year Committed Use Discounts (CUDs) for the development VM fleet to reduce the per-hour cost.",
-        "D": "Migrate all development workloads to Cloud Shell instances, which are free for up to 50 hours per week."
+        "A": "Create a single project per business unit and use resource labels to separate billing and IAM.",
+        "B": "Create a folder per business unit under the Organization node; use a shared-services folder for common resources; apply Organization Policies and IAM at the folder level.",
+        "C": "Create a separate Google Cloud Organization per business unit to provide maximum isolation.",
+        "D": "Use VPC Network Peering between projects in a single folder to share services across business units."
       },
       "correctAnswer": "B",
-      "explanation": "VM instance schedules are a native Compute Engine feature that automatically starts and stops VMs on a recurring schedule. VMs running 8 hours/day on weekdays (40 hours/week) instead of 168 hours/week represents a ~76% reduction in runtime hours, directly reducing cost proportionally. Option A (Spot VMs) reduces the per-hour price but the VMs can be preempted at any time, causing data loss and workflow disruptions for developers—unacceptable for development environments. Option C (CUDs) provides 20–57% discounts on the hourly rate but the VMs still run 24/7, so total savings are less than the ~76% achieved by stopping unused VMs. Option D (Cloud Shell) is for basic command-line tasks and cannot replace full development VMs for running applications and services."
+      "explanation": "The recommended resource hierarchy uses the Organization as root, Folders to group projects by business unit or environment, and Projects for resource isolation and billing. A shared-services folder contains projects for logging, security, and networking consumed by all BUs. IAM and Organization Policies applied at the folder level are inherited by child projects, enabling consistent governance at scale. A single project per BU (A) does not provide sufficient network or IAM isolation. Separate Organizations (C) fragment administration and billing management. VPC Peering (D) addresses network connectivity but not the overall hierarchy and policy requirements."
+    },
+    {
+      "id": 14,
+      "section": 1,
+      "caseStudy": null,
+      "scenario": "Your enterprise runs latency-sensitive workloads in their own data centers that cannot move to the cloud due to data-residency regulations. The platform team wants unified workload management, consistent CI/CD pipelines, and centralized policy enforcement across both on-premises Kubernetes clusters and Google Cloud GKE clusters. What Google Cloud solution best addresses this?",
+      "options": {
+        "A": "Deploy Cloud Interconnect to every on-premises data center and apply centralized IAM policies from the Google Cloud Organization.",
+        "B": "Use Anthos with GKE on-premises clusters to extend the Google Cloud management plane and use Anthos Config Management for GitOps-based policy enforcement across all clusters.",
+        "C": "Use Migrate for Anthos to lift-and-shift on-premises VMs into containers on GKE.",
+        "D": "Install Cloud Operations agents on all on-premises servers to provide centralized logging and monitoring."
+      },
+      "correctAnswer": "B",
+      "explanation": "Anthos provides a consistent management plane for Kubernetes workloads regardless of where they run. Anthos Config Management with Config Sync and Policy Controller implements GitOps-based configuration synchronization and OPA/Gatekeeper policy enforcement across all clusters. Cloud Interconnect (A) provides network connectivity but not workload management or policy enforcement. Migrate for Anthos (C) is a migration tool, not a hybrid management solution for workloads that must stay on-premises. Cloud Operations agents (D) provide observability but not CI/CD or policy management."
+    },
+    {
+      "id": 15,
+      "section": 2,
+      "caseStudy": "Cymbal Retail",
+      "scenario": "Cymbal Retail's e-commerce checkout service runs on GKE Autopilot. During major promotional events, traffic spikes from 100 requests/second to 10,000 requests/second within 3 minutes. CPU-based autoscaling is reacting too slowly, causing request failures during the initial ramp-up. What scaling configuration minimizes failures during these rapid traffic spikes?",
+      "options": {
+        "A": "Configure the Horizontal Pod Autoscaler to scale on CPU utilization with a target of 30% and set minReplicas to 100.",
+        "B": "Configure the Horizontal Pod Autoscaler on a custom metric (requests per second per pod) exported via the Custom Metrics Adapter, combined with GKE Autopilot's automatic node provisioning.",
+        "C": "Use the Vertical Pod Autoscaler to increase resource limits dynamically as traffic grows.",
+        "D": "Pre-scale the deployment manually to maximum capacity before each promotional event using a Cloud Scheduler job."
+      },
+      "correctAnswer": "B",
+      "explanation": "Custom metrics-based HPA using requests per second as the scaling signal is more responsive to traffic patterns than CPU utilization. CPU typically lags traffic changes by 30–60 seconds, whereas request rate immediately reflects incoming load. GKE Autopilot automatically provisions additional nodes when pod demand increases, removing the node management burden. Option A (CPU-based with low target) may still lag traffic ramp-up and forces over-provisioning at idle. Option C (VPA) adjusts pod resource sizes, not pod count; it also requires pod restarts which causes disruption. Option D (manual pre-scaling) requires operational intervention and wastes resources outside promotional windows."
+    },
+    {
+      "id": 16,
+      "section": 2,
+      "caseStudy": "Cymbal Retail",
+      "scenario": "Cymbal Retail operates a 500-VM VMware vSphere environment on-premises, running a mix of Windows and Linux workloads including several legacy applications that cannot be modified, re-platformed, or re-architected due to vendor support constraints. The infrastructure team wants to migrate to Google Cloud while preserving all existing VMware tooling, networking configurations, and operational processes. Which migration approach best meets these requirements?",
+      "options": {
+        "A": "Use Migrate for Compute Engine (formerly Velostrata) to automatically convert VMware VMs to Compute Engine instances.",
+        "B": "Use Google Cloud VMware Engine (GCVE) to run the VMware vSphere environment natively on dedicated Google Cloud infrastructure.",
+        "C": "Containerize all VMs using Migrate to Containers and deploy to GKE Autopilot.",
+        "D": "Re-host workloads on Compute Engine N2 instances and reconfigure application dependencies manually."
+      },
+      "correctAnswer": "B",
+      "explanation": "Google Cloud VMware Engine (GCVE) provides dedicated VMware infrastructure (vSphere, vSAN, NSX-T) on Google Cloud hardware, enabling a true lift-and-shift of the entire VMware environment without any changes to VMs, applications, or VMware tooling. Existing NSX networking, vMotion, vCenter management, and all VMware-native operations continue unchanged. This is the only option that truly preserves all existing VMware processes and supports legacy vendor-constrained applications. Option A (Migrate for Compute Engine) converts VMs to GCE instances, requiring driver changes and losing VMware-native operations—not suitable for vendor-constrained applications. Option C (Migrate to Containers) requires significant application changes. Option D (manual re-hosting) is labor-intensive and doesn't preserve VMware tooling or networking configurations."
+    },
+    {
+      "id": 17,
+      "section": 2,
+      "caseStudy": "Cymbal Retail",
+      "scenario": "Cymbal Retail platform team manages infrastructure using Terraform stored in a Git repository. Twenty developers need the ability to propose infrastructure changes. The security team mandates that all Terraform changes to the production environment be peer-reviewed, approved, and traceable to a specific Git commit. Direct manual terraform apply commands against production are prohibited. What is the recommended implementation?",
+      "options": {
+        "A": "Grant all developers the Editor role on the production project and require peer code review before running terraform apply locally.",
+        "B": "Store Terraform state in a Cloud Storage bucket with locking; use Cloud Build triggers to run terraform plan on PRs and terraform apply on merge to main after required approvals in the version-control system.",
+        "C": "Replace Terraform with gcloud CLI scripts for production changes to maintain simplicity and reduce risk.",
+        "D": "Run Terraform from developer workstations using short-lived impersonated service account tokens approved by an admin."
+      },
+      "correctAnswer": "B",
+      "explanation": "GitOps with Cloud Build is the recommended approach. PRs trigger terraform plan for visibility; merge to main after approvals triggers terraform apply via Cloud Build using a least-privilege service account. Terraform state in Cloud Storage provides shared, consistent state with state locking. The Git history provides a full audit trail. Option A bypasses least privilege. Option C abandons IaC benefits. Option D still permits unapproved direct applies without a centralized audit trail."
+    },
+    {
+      "id": 18,
+      "section": 2,
+      "caseStudy": "Cymbal Retail",
+      "scenario": "Cymbal Retail has 150 projects across 6 business units. The Finance team requires detailed cost allocation reports broken down by business unit, application name, and environment such as dev, staging, and prod. Current Cloud Console billing reports do not provide sufficient granularity. What approach should you recommend?",
+      "options": {
+        "A": "Create a separate Billing Account per business unit to isolate charges.",
+        "B": "Export Cloud Billing data to BigQuery; enforce consistent resource labels for business-unit, application, and environment on all resources via Organization Policy and Terraform; build Looker Studio dashboards on the exported data.",
+        "C": "Enable Committed Use Discounts for all projects to reduce the overall bill and simplify cost reporting.",
+        "D": "Review the Google Cloud Console billing breakdown page monthly and create manual spreadsheet reports."
+      },
+      "correctAnswer": "B",
+      "explanation": "Exporting billing data to BigQuery enables rich, queryable cost allocation by any combination of resource labels. Consistent labels applied via Organization Policy and IaC enable Finance to filter and aggregate costs across any dimension. Looker Studio provides self-service dashboards. Separate billing accounts (A) provide cost isolation but prevent cross-BU consolidated reporting and create management overhead. CUDs (C) reduce cost but do not improve allocation granularity. Manual spreadsheets (D) are error-prone and unscalable."
     },
     {
       "id": 19,
@@ -304,34 +304,216 @@
     },
     {
       "id": 20,
-      "section": 5,
-      "caseStudy": "Cymbal Retail",
-      "scenario": "Cymbal Retail needs to migrate a 2 TB Oracle database (running at 500 transactions/second) to Cloud Spanner with minimal application downtime. The target is to keep the production cutover window under 30 minutes. Which migration approach best achieves this goal?",
+      "section": 2,
+      "caseStudy": "Altostrat Media",
+      "scenario": "Altostrat Media video transcoding workload on GKE processes jobs that each run 5 to 30 minutes. Demand is highly unpredictable: during major events, hundreds of jobs queue simultaneously; during off-peak hours, nodes sit idle. The team wants to minimize queuing latency during spikes and reduce idle infrastructure costs. What GKE configuration should you recommend?",
       "options": {
-        "A": "Export the entire Oracle database to CSV files, transform data types, and import directly into Cloud Spanner during a maintenance window.",
-        "B": "Use Database Migration Service (DMS) to replicate Oracle to Cloud SQL first, then use a second migration to Cloud Spanner.",
-        "C": "Use Datastream to establish continuous Change Data Capture (CDC) replication from Oracle to Cloud Spanner, perform the schema migration in advance, then cut over once replication lag is near zero.",
-        "D": "Install Oracle on a Compute Engine instance, migrate data there, and gradually refactor the application to use Cloud Spanner over 6 months."
+        "A": "Use GKE Standard with Cluster Autoscaler and a dedicated Spot VM node pool for transcoding workers; configure the node pool with a maximum node count sized for peak demand.",
+        "B": "Use GKE Autopilot with burstable machine types to absorb demand spikes automatically.",
+        "C": "Use GKE Standard with a fixed-size node pool provisioned for peak demand to eliminate queuing.",
+        "D": "Use Google Cloud Batch with managed compute resources to submit transcoding jobs without managing node pools."
       },
-      "correctAnswer": "C",
-      "explanation": "Datastream is Google Cloud's serverless CDC and replication service that supports Oracle as a source. By establishing continuous replication well before the cutover date, the Cloud Spanner database stays in near-sync with Oracle. When ready to cut over, the application is directed to Cloud Spanner once replication lag drops to seconds, resulting in a cutover window well under 30 minutes. Option A (CSV export/import) requires taking the Oracle database offline for the duration of export and import—at 2 TB and 500 TPS, this would take hours. Option B (DMS to Cloud SQL) adds an unnecessary intermediate step and DMS doesn't directly migrate to Spanner. Option D (Compute Engine Oracle) is a lift-and-shift that defers the actual migration and doesn't achieve the goal of moving to Cloud Spanner quickly."
+      "correctAnswer": "A",
+      "explanation": "For batch workloads with unpredictable demand, GKE Standard with Cluster Autoscaler and Spot node pools is optimal. Cluster Autoscaler adds nodes when pods are pending and removes them when idle, eliminating waste. Spot VMs reduce compute costs by up to 90 percent for fault-tolerant batch workloads. GKE Autopilot (B) does not provide the same level of Spot node pool control for batch optimization. A fixed-size pool (C) maximizes idle cost. Google Cloud Batch (D) requires rearchitecting away from existing GKE-native workflows."
     },
     {
       "id": 21,
-      "section": 5,
-      "caseStudy": "Cymbal Retail",
-      "scenario": "Cymbal Retail wants to implement canary deployments for their checkout service on GKE. New versions must receive exactly 5% of production traffic for validation before progressing to a full rollout. The process must include automated success/failure evaluation based on error rate and latency metrics, and an automated rollback capability. Which implementation approach is most appropriate?",
+      "section": 2,
+      "caseStudy": null,
+      "scenario": "Your organization must ensure that no Compute Engine VM in any project across the entire Organization can be created with an external (public) IP address, while still allowing authorized exceptions for specific projects that legitimately require public-facing VMs. What is the recommended approach?",
       "options": {
-        "A": "Deploy the new version to a separate GKE cluster and configure Traffic Director with a 95/5 traffic split between the two clusters.",
-        "B": "Create two Kubernetes Deployments (stable and canary) and manually adjust replica counts to approximate a 95/5 traffic split.",
-        "C": "Use Cloud Deploy with a canary deployment strategy configured for 5% initial traffic, automated canary analysis using Cloud Monitoring metrics, and rollback on failure.",
-        "D": "Configure the Kubernetes Deployment with a rolling update strategy, setting maxSurge to 5% to gradually replace pods."
+        "A": "Apply a VPC firewall rule at the Organization level to block all ingress traffic from 0.0.0.0/0.",
+        "B": "Apply the compute.vmExternalIpAccess Organization Policy constraint at the Organization node set to deny all external IPs; override the constraint at the project level for authorized exceptions.",
+        "C": "Create a custom IAM role that removes the compute.instances.setMetadata permission and apply it organization-wide.",
+        "D": "Use VPC Service Controls to create a service perimeter that blocks Compute Engine external IP APIs."
       },
-      "correctAnswer": "C",
-      "explanation": "Cloud Deploy provides first-class canary deployment support with precise traffic splitting, integrated canary analysis using Cloud Monitoring or Cloud Trace metrics, automated promotion or rollback based on defined success/failure criteria, and full audit trails. This requires minimal custom tooling. Option A (Traffic Director with two clusters) is technically feasible but requires significant infrastructure management overhead—maintaining two clusters and configuring Traffic Director. Option B (dual Deployments with replica ratio) only approximates a 5% split based on pod counts and does not provide automated analysis or rollback. Option D (rolling update maxSurge) controls the surge capacity during rolling updates, not traffic splitting between versions; it does not enable canary analysis."
+      "correctAnswer": "B",
+      "explanation": "Organization Policy constraints provide resource configuration governance at scale. The compute.vmExternalIpAccess constraint set to Deny All at the Organization level prevents any project from creating VMs with public IPs. The constraint can be overridden at the folder or project level for authorized exceptions, following the principle of least privilege. Firewall rules (A) block traffic but cannot prevent IP assignment at creation time. IAM permissions (C) cannot block external IP assignment via the Compute Engine API. VPC Service Controls (D) are designed for data-exfiltration prevention, not VM configuration governance."
     },
     {
       "id": 22,
+      "section": 3,
+      "caseStudy": "Cymbal Retail",
+      "scenario": "A PCI DSS audit of Cymbal Retail's Google Cloud environment identifies a finding: employees in the analytics team can query raw credit card numbers stored in a BigQuery table, but only the fraud detection team requires access to full card numbers. The recommended remediation must enforce field-level access control within BigQuery without moving the data to a different system. Which solution directly addresses this finding?",
+      "options": {
+        "A": "Encrypt the BigQuery dataset with a CMEK key only shared with the fraud detection team's service accounts.",
+        "B": "Apply BigQuery column-level security using policy tags and Identity and Access Management (IAM) data policies to restrict access to sensitive columns, using Cloud DLP to mask data for unauthorized users.",
+        "C": "Create separate BigQuery datasets with only non-sensitive columns copied to the analytics dataset using a scheduled query.",
+        "D": "Use BigQuery authorized views exposing only non-sensitive columns to the analytics team, and grant the fraud detection team direct table access."
+      },
+      "correctAnswer": "B",
+      "explanation": "BigQuery column-level security using policy tags (integrated with Data Catalog) enables fine-grained IAM control at the individual column level. Unauthorized users (analytics team) can be denied access to sensitive columns using IAM data policies; Cloud DLP can mask or tokenize those columns for users without the required role. This is enforced natively within BigQuery without data duplication. Option A (CMEK) controls storage-level key access but does not provide column-level query restrictions—the analytics team would still see all columns if they have table-level read access. Option C (copying data to a separate dataset) creates data duplication and synchronization challenges. Option D (authorized views) is a valid but less granular approach that requires maintaining separate view definitions and doesn't dynamically mask data for different user roles."
+    },
+    {
+      "id": 23,
+      "section": 3,
+      "caseStudy": "Cymbal Retail",
+      "scenario": "Cymbal Retail stores sensitive customer PII in BigQuery and Cloud Storage. The security team is concerned about data exfiltration via a compromised service account where an attacker uses valid credentials to copy data to a BigQuery dataset or Cloud Storage bucket outside the organization. What control provides the strongest protection against this threat?",
+      "options": {
+        "A": "Enable BigQuery column-level security and row-level access policies on all tables containing PII.",
+        "B": "Create a VPC Service Controls perimeter encompassing the BigQuery and Cloud Storage APIs across all projects handling PII; configure ingress and egress rules to deny data movement outside the perimeter.",
+        "C": "Enable Cloud DLP to scan all data in BigQuery and redact sensitive fields before they can be exported.",
+        "D": "Disable service account key creation and require all workloads to use Workload Identity Federation."
+      },
+      "correctAnswer": "B",
+      "explanation": "VPC Service Controls creates a logical security perimeter around Google Cloud APIs. Even with valid credentials, requests to move data outside the perimeter are denied at the API level. Column-level security (A) restricts which data an authorized principal can query but does not prevent exfiltration of authorized data. DLP (C) scans and redacts data but does not block exfiltration of authorized data. Workload Identity Federation (D) improves credential hygiene but does not prevent an attacker with stolen tokens from exfiltrating data."
+    },
+    {
+      "id": 24,
+      "section": 3,
+      "caseStudy": "Cymbal Retail",
+      "scenario": "A PCI DSS compliance assessment for Cymbal Retail payment processing environment identifies that access to cardholder data must be fully logged, logs must be retained for at least 12 months with 3 months immediately accessible, and log integrity must be guaranteed so that logs cannot be modified or deleted. What should you configure in Google Cloud?",
+      "options": {
+        "A": "Enable Cloud Logging with the default 30-day retention period and export logs to Cloud Storage for long-term storage.",
+        "B": "Enable Data Access audit logs for DATA_READ and DATA_WRITE operations for all relevant services; configure a log sink to a Cloud Storage bucket with Bucket Lock (WORM) enabled; set a lifecycle policy to retain logs for 12 months and transition to Nearline after 90 days; configure Cloud Logging retention to 12 months.",
+        "C": "Use Cloud Monitoring alerts to notify the security team of unauthorized access attempts and export alert history for audit purposes.",
+        "D": "Enable VPC Flow Logs and firewall rule logs and export them to BigQuery for PCI DSS audit queries."
+      },
+      "correctAnswer": "B",
+      "explanation": "PCI DSS Requirement 10 mandates comprehensive audit logging of cardholder data access, tamper-evident log storage, and defined retention periods. Data Access audit logs capture all reads and writes. A Cloud Storage sink with Bucket Lock (WORM) ensures logs cannot be modified or deleted. Lifecycle policies handle tiered retention. Cloud Logging default 30-day retention (A) is insufficient. Monitoring alerts (C) are detective controls, not a logging solution. VPC Flow Logs and firewall logs (D) are important network logs but do not capture application-level data access required by PCI DSS."
+    },
+    {
+      "id": 25,
+      "section": 3,
+      "caseStudy": "Altostrat Media",
+      "scenario": "Altostrat Media has content licensing agreements that prohibit streaming specific video titles to users located in certain countries. The restriction must be enforced at the network perimeter before requests reach the application servers, to prevent any possibility of unauthorized access even through API abuse. Which Google Cloud mechanism should you use?",
+      "options": {
+        "A": "Cloud CDN custom headers with Cloud Functions to check viewer geolocation before serving cached content.",
+        "B": "Cloud Armor security policies with geo-restriction rules applied to the global external HTTP(S) load balancer.",
+        "C": "Identity-Aware Proxy (IAP) with custom access levels configured to deny traffic from restricted countries.",
+        "D": "VPC firewall ingress rules blocking known IP ranges associated with restricted countries."
+      },
+      "correctAnswer": "B",
+      "explanation": "Cloud Armor evaluates security policy rules at Google's edge network infrastructure before requests reach the load balancer backends, providing enforcement at the true network perimeter. Geo-restriction rules can block or allow traffic based on the source country code (ISO 3166-1 alpha 2) derived from the client IP. This enforcement happens before any application code runs. Option A (Cloud CDN + Cloud Functions) requires application-layer processing and adds latency. Option C (IAP) is designed for identity-based access control, not geographic restriction at the network layer. Option D (VPC firewall rules) apply inside the VPC, after traffic has already traversed the load balancer; they don't block at the Google edge and are difficult to maintain as IP ranges change constantly."
+    },
+    {
+      "id": 26,
+      "section": 3,
+      "caseStudy": "Altostrat Media",
+      "scenario": "Altostrat Media runs a Kubernetes-based media processing platform on GKE. Their security team wants to ensure that only container images that have been scanned for vulnerabilities, reviewed, and cryptographically attested by the security team can be deployed to production GKE clusters. What should you implement?",
+      "options": {
+        "A": "Enable GKE node auto-upgrade to ensure nodes always run the latest OS patches.",
+        "B": "Enable Binary Authorization on the production GKE cluster with an attestation policy; use Cloud Build to trigger Artifact Registry vulnerability scanning and automatically create attestations on images that pass the scan; require the security team manual attestation for critical images before deployment.",
+        "C": "Configure Artifact Registry vulnerability scanning to alert the security team when high-severity CVEs are detected in images.",
+        "D": "Implement a custom Kubernetes admission webhook that checks image tags to reject deployments using the latest tag."
+      },
+      "correctAnswer": "B",
+      "explanation": "Binary Authorization is a deploy-time security control integrated with GKE that requires cryptographic attestations before images can run. The supply chain workflow is: build, scan in Artifact Registry, attestation created by Cloud Build or security team, Binary Authorization policy enforces required attestations at deploy time. Node auto-upgrade (A) addresses node OS security, not image supply chain. Artifact Registry scanning alerts (C) are detective, not preventive. Custom admission webhooks (D) require bespoke code and operational burden; Binary Authorization is the native GCP solution."
+    },
+    {
+      "id": 27,
+      "section": 3,
+      "caseStudy": null,
+      "scenario": "A financial services organization requires that encryption keys for all sensitive customer data stored in Google Cloud must be controlled by the customer (not Google), stored in FIPS 140-2 Level 3 validated hardware, and rotated automatically every 90 days. Which encryption solution meets all three requirements?",
+      "options": {
+        "A": "Use Google-managed default encryption, which includes automatic key rotation every 90 days.",
+        "B": "Use Customer-Managed Encryption Keys (CMEK) with Cloud Key Management Service (Cloud KMS) software-backed keys.",
+        "C": "Use Customer-Managed Encryption Keys (CMEK) with Cloud HSM using hardware-backed keys and set a 90-day rotation schedule.",
+        "D": "Encrypt all data client-side before uploading to Cloud Storage using AES-256 with application-managed keys."
+      },
+      "correctAnswer": "C",
+      "explanation": "Cloud HSM provides FIPS 140-2 Level 3 validated hardware security modules, satisfying the hardware storage requirement. CMEK ensures the customer controls key access and the key cannot be used by Google without authorization. Automatic rotation can be configured within Cloud KMS/HSM at any schedule including every 90 days. Option A uses Google-managed keys, which do not give the customer exclusive control. Option B (Cloud KMS software keys) does not satisfy the FIPS 140-2 Level 3 hardware requirement—that requires Cloud HSM specifically. Option D (client-side encryption) places the full key management burden on the application and doesn't benefit from Google's KMS integration with storage services."
+    },
+    {
+      "id": 28,
+      "section": 3,
+      "caseStudy": null,
+      "scenario": "Your security team requires that only container images that have been built by your internal CI pipeline, vulnerability-scanned, and explicitly approved can be deployed to your GKE production cluster. Unsigned or externally sourced images must be rejected at deploy time. Which Google Cloud mechanism enforces this requirement?",
+      "options": {
+        "A": "Configure Kubernetes Pod Security Standards with the 'restricted' policy to limit container privileges.",
+        "B": "Enable Artifact Registry vulnerability scanning and configure a deployment pipeline that blocks images with critical CVEs.",
+        "C": "Implement Binary Authorization with a policy requiring attestations from your CI pipeline before deployment to GKE.",
+        "D": "Use Kubernetes Network Policies to restrict communication to only approved container image sources."
+      },
+      "correctAnswer": "C",
+      "explanation": "Binary Authorization is Google Cloud's deploy-time security control for GKE (and Cloud Run). It enforces a policy requiring attestations—cryptographic signatures created by authorized attestors—before allowing an image to be deployed. Your CI pipeline acts as an attestor after completing scanning and approval steps. Images that haven't been attested are rejected at deploy time. Option A (Pod Security Standards) controls runtime behavior like privilege escalation and host namespace access, but does not verify image provenance. Option B (vulnerability scanning) identifies vulnerabilities but does not prevent deployment of unscanned or unapproved images. Option D (Network Policies) controls pod-to-pod network traffic, not container image deployment."
+    },
+    {
+      "id": 29,
+      "section": 3,
+      "caseStudy": null,
+      "scenario": "Your organization stores sensitive data in BigQuery and Cloud Storage. The security team has identified two data exfiltration risks: (1) data could be copied from BigQuery to tables in external, unauthorized Google Cloud projects; and (2) Cloud Storage buckets could be read from VMs outside your corporate VPC. Which single Google Cloud feature mitigates both risks through perimeter-based access controls?",
+      "options": {
+        "A": "Organization policies restricting resource location to approved regions.",
+        "B": "VPC Service Controls service perimeters protecting BigQuery and Cloud Storage APIs.",
+        "C": "Cloud Armor WAF rules blocking unauthorized API calls to BigQuery and Cloud Storage.",
+        "D": "IAM deny policies at the organization level preventing cross-project data movement."
+      },
+      "correctAnswer": "B",
+      "explanation": "VPC Service Controls allows you to define service perimeters that restrict access to Google Cloud APIs (including BigQuery and Cloud Storage) based on identity attributes and network origin. Once data is inside a perimeter, it cannot be read by identities or networks outside the perimeter, preventing exfiltration to unauthorized projects or from outside your VPC. Option A (resource location policies) restricts where resources can be created geographically, not who can access them. Option C (Cloud Armor) operates on HTTP/S traffic to load-balanced endpoints, not on direct Google API calls. Option D (IAM deny policies) controls who can call APIs but does not prevent authorized users from exfiltrating data to external projects once they have legitimate access."
+    },
+    {
+      "id": 30,
+      "section": 3,
+      "caseStudy": null,
+      "scenario": "Your organization developers occasionally need temporary, time-limited access to production Cloud SQL databases to investigate incidents. The security team requires that this access be approved, auditable, and automatically revoked after a defined period. Long-lived standing access to production is prohibited. What should you implement?",
+      "options": {
+        "A": "Create shared service account keys with expiry metadata stored in Secret Manager for developers to retrieve during investigations.",
+        "B": "Grant all developers permanent read-only Cloud SQL Viewer roles on the production project.",
+        "C": "Implement Privileged Access Manager (PAM) to provide just-in-time, time-bound IAM role grants with an approval workflow and automatic expiration.",
+        "D": "Create a breakglass service account with Owner role and provide the key exclusively to senior engineers for emergency use."
+      },
+      "correctAnswer": "C",
+      "explanation": "Privileged Access Manager (PAM) provides just-in-time access by granting temporary IAM role bindings that expire automatically. Requests go through an approval workflow, grants are logged in Cloud Audit Logs, and access is revoked automatically, satisfying all requirements. Shared service account keys (A) are long-lived credentials that violate the prohibition on standing access. Permanent access (B) directly violates the least-privilege policy. A breakglass Owner account (D) is far too permissive for routine investigations and sharing keys is a security antipattern."
+    },
+    {
+      "id": 31,
+      "section": 3,
+      "caseStudy": null,
+      "scenario": "Your organization currently uses a VPN to provide employees with access to internal web applications hosted on Google Cloud. The security team wants to adopt a zero-trust model where access decisions are based on verified user identity and device health posture, not network location. The VPN should be retired for web application access. What Google Cloud solution should you implement?",
+      "options": {
+        "A": "Add an additional firewall layer in each VPC to perform deep-packet inspection on all VPN traffic.",
+        "B": "Implement BeyondCorp Enterprise by deploying Identity-Aware Proxy (IAP) in front of all internal web applications, configuring Endpoint Verification to assess device posture, and defining access policies based on user identity, group membership, and device compliance.",
+        "C": "Use Cloud Armor WAF policies to protect all internal applications from external threats.",
+        "D": "Deploy Cloud NAT gateways in each region to mask the internal network topology."
+      },
+      "correctAnswer": "B",
+      "explanation": "BeyondCorp Enterprise is Google zero-trust access solution. Identity-Aware Proxy (IAP) enforces identity-based access to web applications through a Google-managed reverse proxy, eliminating the need for a VPN. Endpoint Verification checks device posture including OS version, disk encryption, and screen lock, and access policies enforce context-aware conditions. Additional firewalls (A) still rely on network perimeter. Cloud Armor (C) is a DDoS and WAF solution, not a zero-trust access control system. Cloud NAT (D) provides outbound IP address management, not access control."
+    },
+    {
+      "id": 32,
+      "section": 4,
+      "caseStudy": "Cymbal Retail",
+      "scenario": "Cymbal Retail's marketing team runs daily reports in BigQuery against a partitioned fact table containing 500 billion rows and 5 years of purchase history (approximately 200 TB). Most queries filter on purchase_date range and then group by region and product_category. Query performance is poor and costs are high. Which single optimization provides the greatest improvement for this specific query pattern?",
+      "options": {
+        "A": "Increase the BI Engine reservation to cache the entire 200 TB table in memory.",
+        "B": "Partition the table by purchase_date (DATE) and cluster by region and product_category.",
+        "C": "Create materialized views pre-aggregated by purchase_date, region, and product_category for each common report.",
+        "D": "Export data older than 1 year to Cloud Storage and query it with BigQuery external tables using Hive partitioning."
+      },
+      "correctAnswer": "B",
+      "explanation": "Partitioning by purchase_date means BigQuery only scans partitions within the query's date range, eliminating the need to read irrelevant data. Clustering within each partition by region then product_category ensures data with similar values is co-located on disk, so range and equality filters on those columns perform block-level pruning. This optimization directly matches the described query pattern and reduces both scan cost and execution time. Option A (BI Engine) is limited to a maximum reservation size far below 200 TB. Option C (materialized views) requires predefined query shapes and adds write overhead. Option D (external tables) reduces storage cost but increases query latency compared to native BigQuery storage."
+    },
+    {
+      "id": 33,
+      "section": 4,
+      "caseStudy": "Cymbal Retail",
+      "scenario": "Cymbal Retail's development team uses Compute Engine VMs for feature development and testing. Utilization analysis shows that VMs run 24/7 but are only actively used for 8 hours per day on weekdays. Development VMs account for 60% of the monthly compute budget. Which cost optimization strategy reduces spend most effectively while maintaining developer productivity?",
+      "options": {
+        "A": "Convert all development VMs to Spot (preemptible) instances to reduce hourly costs by up to 91%.",
+        "B": "Configure VM instance schedules to automatically stop VMs after business hours and on weekends, and start them at the beginning of each workday.",
+        "C": "Purchase 1-year Committed Use Discounts (CUDs) for the development VM fleet to reduce the per-hour cost.",
+        "D": "Migrate all development workloads to Cloud Shell instances, which are free for up to 50 hours per week."
+      },
+      "correctAnswer": "B",
+      "explanation": "VM instance schedules are a native Compute Engine feature that automatically starts and stops VMs on a recurring schedule. VMs running 8 hours/day on weekdays (40 hours/week) instead of 168 hours/week represents a ~76% reduction in runtime hours, directly reducing cost proportionally. Option A (Spot VMs) reduces the per-hour price but the VMs can be preempted at any time, causing data loss and workflow disruptions for developers—unacceptable for development environments. Option C (CUDs) provides 20–57% discounts on the hourly rate but the VMs still run 24/7, so total savings are less than the ~76% achieved by stopping unused VMs. Option D (Cloud Shell) is for basic command-line tasks and cannot replace full development VMs for running applications and services."
+    },
+    {
+      "id": 34,
+      "section": 4,
+      "caseStudy": "Cymbal Retail",
+      "scenario": "Cymbal Retail monthly BigQuery bill has grown to $80,000, primarily from on-demand query charges. Analysis shows that 70% of bytes scanned originate from queries that repeatedly scan the same large base tables with date-range and category filters. What is the most effective strategy to reduce query costs?",
+      "options": {
+        "A": "Switch all analysts to a BigQuery flat-rate reservation with 500 slots to cap monthly spend.",
+        "B": "Partition the most frequently queried tables by date and cluster by the most common filter columns; create materialized views for the most repeated query patterns; enforce partition-filter requirements.",
+        "C": "Apply BROTLI compression to all tables to reduce the bytes scanned per query.",
+        "D": "Archive infrequently accessed tables to BigQuery long-term storage and delete duplicate datasets."
+      },
+      "correctAnswer": "B",
+      "explanation": "Since 70% of costs come from repeatedly scanning the same tables with similar filters, the highest-impact optimization is reducing bytes scanned. Partitioning by date enables partition pruning so only relevant partitions are scanned. Clustering further reduces scanned bytes for filter and join operations. Materialized views pre-compute and cache repeated query patterns. Partition-filter requirements prevent accidental full-table scans. Flat-rate slots (A) can be more expensive than on-demand if utilization is low and do not reduce bytes scanned. BigQuery bills on logical bytes scanned, not compressed size, so BROTLI (C) does not reduce the bill. Long-term storage (D) reduces storage costs, not query costs."
+    },
+    {
+      "id": 35,
       "section": 4,
       "caseStudy": "Altostrat Media",
       "scenario": "Altostrat Media's data analytics team of 20 analysts runs ad-hoc and scheduled queries in BigQuery against 50 TB of viewer engagement data. Monthly BigQuery costs are unpredictable, varying between $8,000 and $35,000 depending on query patterns. Leadership wants cost predictability. Which pricing strategy and governance approach should you implement?",
@@ -345,7 +527,189 @@
       "explanation": "Flat-rate slot commitments convert BigQuery billing from variable (per TB scanned) to a fixed monthly cost, providing complete cost predictability. Slot reservations allow allocating specific slot capacities to different teams or workload types, preventing any single team from monopolizing resources. This approach is cost-effective for 20 analysts running regular heavy queries. Option A (on-demand with quotas) reduces but doesn't eliminate cost variability, as quotas control frequency not cost per query. Option C (BI Engine) caches data for dashboard-style queries with limited dataset sizes; it doesn't cover all ad-hoc query patterns and doesn't provide flat predictable pricing. Option D (external tables) increases query latency and reduces manageability; it doesn't address cost predictability for queries on current data."
     },
     {
-      "id": 23,
+      "id": 36,
+      "section": 4,
+      "caseStudy": "Altostrat Media",
+      "scenario": "Altostrat Media data science team trains video content recommendation models on Vertex AI using n1-standard-96 machines. Training runs 8 to 12 hours and occurs 2 to 3 times per week. The monthly ML training cost is $45,000. Jobs are fault-tolerant and can be restarted from checkpoints. How should you reduce training costs while maintaining model quality?",
+      "options": {
+        "A": "Switch to n1-standard-16 machines to reduce the hourly rate.",
+        "B": "Run Vertex AI custom training jobs on Spot VMs and implement model checkpointing in the training code so that training resumes from the latest checkpoint after a preemption.",
+        "C": "Schedule all training jobs to run between midnight and 6 AM to benefit from lower cloud pricing.",
+        "D": "Switch to Vertex AI AutoML to eliminate custom training infrastructure costs."
+      },
+      "correctAnswer": "B",
+      "explanation": "Spot VMs provide up to 90 percent cost savings for batch workloads that can tolerate interruptions. Because the training jobs are fault-tolerant, combining Spot VMs with model checkpointing ensures efficient recovery from preemptions without restarting from scratch. Smaller machines (A) may increase total wall-clock time and cost if the workload is memory-bound. Google Cloud pricing is not time-of-day discounted (C). AutoML (D) does not support custom model architectures and may not achieve the same model quality for specialized recommendation models."
+    },
+    {
+      "id": 37,
+      "section": 4,
+      "caseStudy": null,
+      "scenario": "Your organization Compute Engine bill has reached $500,000 per month. Usage analysis shows 60% of VM-hours run stable, predictable workloads operating 24/7 for at least the next two years. The remaining 40% run variable, bursty workloads, some of which are fault-tolerant. What cost optimization strategy should you implement?",
+      "options": {
+        "A": "Convert all VMs to Spot (preemptible) instances to achieve the maximum possible cost reduction.",
+        "B": "Purchase 1-year or 3-year Committed Use Discounts (CUDs) covering the stable 60% baseline; for variable workloads, rely on Sustained Use Discounts automatically and use Spot VMs for fault-tolerant jobs within that group.",
+        "C": "Resize all VMs to the smallest available machine type to reduce per-hour cost.",
+        "D": "Migrate all workloads to Cloud Run immediately to eliminate Compute Engine charges."
+      },
+      "correctAnswer": "B",
+      "explanation": "CUDs provide up to 57% for 1-year or 70% for 3-year discount on committed resource usage, optimal for stable, predictable workloads. Committing only the baseline avoids over-commitment risk. For variable workloads, Sustained Use Discounts apply automatically, and Spot VMs provide up to 90% savings for fault-tolerant jobs. Spot VMs (A) are unsuitable for production workloads that cannot tolerate interruption. Downsizing (C) may degrade performance without a proper rightsizing analysis. Migrating to Cloud Run (D) requires significant refactoring and is a long-term strategy, not an immediate cost optimization."
+    },
+    {
+      "id": 38,
+      "section": 5,
+      "caseStudy": "Cymbal Retail",
+      "scenario": "Cymbal Retail wants to implement a fully Google Cloud-native CI/CD pipeline for their containerized microservices. The pipeline must automatically run unit tests, build Docker images, scan images for critical vulnerabilities, and deploy to a GKE Autopilot cluster with progressive rollout and approval gates before production deployment. Which combination of Google Cloud services best implements this pipeline?",
+      "options": {
+        "A": "Cloud Build (CI: test, build, scan) → Artifact Registry (image storage) → Cloud Deploy (CD: progressive delivery to GKE).",
+        "B": "Jenkins on Compute Engine (CI) → Docker Hub (image storage) → kubectl scripts in Cloud Build (CD to GKE).",
+        "C": "GitHub Actions (CI) → Amazon ECR (image storage) → Cloud Deploy (CD to GKE).",
+        "D": "Cloud Functions triggered by Cloud Source Repositories commits (build) → Cloud Storage (artifact storage) → GKE rolling update via startup script."
+      },
+      "correctAnswer": "A",
+      "explanation": "Cloud Build is Google Cloud's native managed CI service, executing test, build, and scan steps defined in a cloudbuild.yaml file. Artifact Registry provides integrated vulnerability scanning, image storage, and access control within Google Cloud. Cloud Deploy provides managed progressive delivery (canary, blue-green) to GKE with approval gates, rollback, and audit trails. This is entirely Google Cloud-native and managed. Option B uses self-managed Jenkins and Docker Hub, introducing operational overhead. Option C mixes GitHub Actions and Amazon ECR, creating external dependencies. Option D uses Cloud Functions and startup scripts, which lack proper CI/CD pipeline features like progressive delivery and approval gates."
+    },
+    {
+      "id": 39,
+      "section": 5,
+      "caseStudy": "Cymbal Retail",
+      "scenario": "Cymbal Retail needs to migrate a 2 TB Oracle database (running at 500 transactions/second) to Cloud Spanner with minimal application downtime. The target is to keep the production cutover window under 30 minutes. Which migration approach best achieves this goal?",
+      "options": {
+        "A": "Export the entire Oracle database to CSV files, transform data types, and import directly into Cloud Spanner during a maintenance window.",
+        "B": "Use Database Migration Service (DMS) to replicate Oracle to Cloud SQL first, then use a second migration to Cloud Spanner.",
+        "C": "Use Datastream to establish continuous Change Data Capture (CDC) replication from Oracle to Cloud Spanner, perform the schema migration in advance, then cut over once replication lag is near zero.",
+        "D": "Install Oracle on a Compute Engine instance, migrate data there, and gradually refactor the application to use Cloud Spanner over 6 months."
+      },
+      "correctAnswer": "C",
+      "explanation": "Datastream is Google Cloud's serverless CDC and replication service that supports Oracle as a source. By establishing continuous replication well before the cutover date, the Cloud Spanner database stays in near-sync with Oracle. When ready to cut over, the application is directed to Cloud Spanner once replication lag drops to seconds, resulting in a cutover window well under 30 minutes. Option A (CSV export/import) requires taking the Oracle database offline for the duration of export and import—at 2 TB and 500 TPS, this would take hours. Option B (DMS to Cloud SQL) adds an unnecessary intermediate step and DMS doesn't directly migrate to Spanner. Option D (Compute Engine Oracle) is a lift-and-shift that defers the actual migration and doesn't achieve the goal of moving to Cloud Spanner quickly."
+    },
+    {
+      "id": 40,
+      "section": 5,
+      "caseStudy": "Cymbal Retail",
+      "scenario": "Cymbal Retail wants to implement canary deployments for their checkout service on GKE. New versions must receive exactly 5% of production traffic for validation before progressing to a full rollout. The process must include automated success/failure evaluation based on error rate and latency metrics, and an automated rollback capability. Which implementation approach is most appropriate?",
+      "options": {
+        "A": "Deploy the new version to a separate GKE cluster and configure Traffic Director with a 95/5 traffic split between the two clusters.",
+        "B": "Create two Kubernetes Deployments (stable and canary) and manually adjust replica counts to approximate a 95/5 traffic split.",
+        "C": "Use Cloud Deploy with a canary deployment strategy configured for 5% initial traffic, automated canary analysis using Cloud Monitoring metrics, and rollback on failure.",
+        "D": "Configure the Kubernetes Deployment with a rolling update strategy, setting maxSurge to 5% to gradually replace pods."
+      },
+      "correctAnswer": "C",
+      "explanation": "Cloud Deploy provides first-class canary deployment support with precise traffic splitting, integrated canary analysis using Cloud Monitoring or Cloud Trace metrics, automated promotion or rollback based on defined success/failure criteria, and full audit trails. This requires minimal custom tooling. Option A (Traffic Director with two clusters) is technically feasible but requires significant infrastructure management overhead—maintaining two clusters and configuring Traffic Director. Option B (dual Deployments with replica ratio) only approximates a 5% split based on pod counts and does not provide automated analysis or rollback. Option D (rolling update maxSurge) controls the surge capacity during rolling updates, not traffic splitting between versions; it does not enable canary analysis."
+    },
+    {
+      "id": 41,
+      "section": 5,
+      "caseStudy": "Cymbal Retail",
+      "scenario": "Cymbal Retail must migrate a 500 GB PostgreSQL database from their on-premises data center to Cloud SQL for PostgreSQL. The business requires no more than 4 hours of total downtime. The database has frequent writes during business hours. What migration approach should you use?",
+      "options": {
+        "A": "Take a full pg_dump, upload to Cloud Storage, import into Cloud SQL, then update application connection strings.",
+        "B": "Use Database Migration Service (DMS) to perform an initial full load followed by continuous replication (CDC) from on-premises PostgreSQL to Cloud SQL; perform the final cutover during a low-traffic window.",
+        "C": "Create a Cloud SQL instance, write custom replication scripts to sync data, and schedule a hard cutover at month-end.",
+        "D": "Use Datastream to capture CDC events from the on-premises database into Pub/Sub, then load them into Cloud SQL."
+      },
+      "correctAnswer": "B",
+      "explanation": "Database Migration Service (DMS) supports homogeneous migrations from PostgreSQL to Cloud SQL for PostgreSQL with minimal downtime. It performs an initial full load and then continuous change data capture replication, keeping Cloud SQL near-real-time synchronized. The cutover window requires only stopping writes to the source and verifying replication is current, typically taking minutes. A full dump and restore (A) may exceed 4 hours for 500 GB with active writes. Custom scripts (C) are error-prone and require significant effort. Datastream (D) targets BigQuery and Spanner, not Cloud SQL, and does not provide a straightforward cutover mechanism."
+    },
+    {
+      "id": 42,
+      "section": 5,
+      "caseStudy": "Altostrat Media",
+      "scenario": "Altostrat Media wants to update their video transcoding service, which processes thousands of jobs per day. They need to validate that the new version handles edge-case video formats correctly before full production rollout. A failed deployment must be fully reversible within 5 minutes. Which deployment strategy is most appropriate?",
+      "options": {
+        "A": "Recreate deployment: terminate all current instances, deploy the new version, then restart.",
+        "B": "Blue/green deployment: deploy the new version (green) in parallel with the current version (blue); gradually shift traffic to green using weighted load balancing; retain the blue environment for immediate rollback if issues arise.",
+        "C": "Rolling update with a 50% surge allowance to accelerate the deployment.",
+        "D": "Manual deployment: push to a single instance and observe for 24 hours before continuing."
+      },
+      "correctAnswer": "B",
+      "explanation": "Blue/green deployment satisfies both requirements. The green environment runs in parallel with blue, allowing progressive traffic shifting to validate the new version with real workloads. If issues are detected, traffic is instantly redirected back to blue, achieving rollback in seconds, well within the 5-minute requirement. Recreate deployment (A) causes downtime during the transition. Rolling updates (C) are difficult to roll back quickly since they progressively replace instances. Manual deployment (D) is too slow and does not provide rapid rollback capabilities."
+    },
+    {
+      "id": 43,
+      "section": 5,
+      "caseStudy": null,
+      "scenario": "Your organization operates 10 GKE clusters across development, staging, and production environments. The platform team must enforce consistent security policies including Pod Security Standards, NetworkPolicies, and required labels, and deploy application configurations across all clusters. All changes must go through a peer-reviewed and approved Git workflow. What solution should you use?",
+      "options": {
+        "A": "Use kubectl apply -f directly on each cluster after SSH-ing into the control plane for each change.",
+        "B": "Use Anthos Config Management with Config Sync and Policy Controller: Config Sync continuously reconciles cluster state from a Git repository; Policy Controller enforces Constraints such as required labels and disallowing privileged containers across all clusters.",
+        "C": "Write a Cloud Build pipeline that runs kubectl apply to all clusters on every push to the main branch.",
+        "D": "Package all configurations as Helm charts and deploy them manually to each cluster during release windows."
+      },
+      "correctAnswer": "B",
+      "explanation": "Anthos Config Management implements multi-cluster GitOps at scale. Config Sync continuously reconciles each cluster to match the desired state in Git, and any manual deviation is automatically corrected. Policy Controller enforces Constraints as admission webhooks, preventing non-compliant resources from being created. All changes flow through Git PR reviews. Direct kubectl (A) is not scalable or auditable across 10 clusters. A Cloud Build push pipeline (C) deploys changes once but does not enforce ongoing compliance if someone manually modifies a cluster. Helm (D) packages applications but does not provide continuous reconciliation or policy enforcement."
+    },
+    {
+      "id": 44,
+      "section": 6,
+      "caseStudy": "Cymbal Retail",
+      "scenario": "Cymbal Retail's order management system processes all retail orders. The business has defined a Recovery Time Objective (RTO) of 1 hour and a Recovery Point Objective (RPO) of 15 minutes for this system. The company wants to meet these targets at the lowest possible cost. Which disaster recovery strategy should you implement?",
+      "options": {
+        "A": "Hot standby (active-active): Run full-capacity deployments in two regions simultaneously with synchronous replication.",
+        "B": "Warm standby: Run a reduced-capacity replica in a secondary region with asynchronous replication at 15-minute intervals and automated failover.",
+        "C": "Cold standby: Define infrastructure in Terraform, take database backups every 15 minutes, and restore from backup to a new environment on failover.",
+        "D": "Pilot Light: Maintain only the database in a secondary region with replication; provision application servers only during a disaster."
+      },
+      "correctAnswer": "B",
+      "explanation": "Warm standby achieves the 1-hour RTO because a reduced-capacity environment is already running and can scale up within an hour. The 15-minute RPO is met by asynchronous replication at 15-minute intervals. This is the most cost-effective approach that satisfies both constraints. Option A (active-active) exceeds requirements and costs significantly more by running full capacity in two regions. Option C (cold standby) risks failing the 1-hour RTO because provisioning infrastructure from scratch with Terraform and restoring from backup typically takes longer than an hour. Option D (pilot light) may meet RPO but requires application server provisioning during a disaster, which risks missing the 1-hour RTO."
+    },
+    {
+      "id": 45,
+      "section": 6,
+      "caseStudy": "Cymbal Retail",
+      "scenario": "Cymbal Retail checkout service has an SLO of 99.95% availability over a 30-day rolling window. Last month the service experienced three incidents totaling 47 minutes of unplanned downtime. The SRE team manages reliability using an error-budget policy. What is the correct SRE response?",
+      "options": {
+        "A": "The SLO was met; 47 minutes is within acceptable variance for 99.95% availability.",
+        "B": "The error budget is exhausted because 47 minutes exceeds the approximately 21.9 minutes allowed; implement a feature deployment freeze and redirect engineering effort to reliability improvements; conduct blameless postmortems for each incident.",
+        "C": "Relax the SLO from 99.95% to 99.9% to create more error budget headroom.",
+        "D": "Add additional Cloud Monitoring alerts to detect future incidents more quickly."
+      },
+      "correctAnswer": "B",
+      "explanation": "99.95% availability over 30 days permits approximately 21.9 minutes of downtime (30 x 24 x 60 x 0.0005 equals approximately 21.6 minutes). With 47 minutes of actual downtime, the error budget is exceeded by more than 2x. The SRE error-budget policy response is to freeze feature deployments and invest engineering effort in reliability improvements. Blameless postmortems identify root causes. Option A is factually incorrect. Relaxing the SLO (C) hides the reliability problem rather than fixing it. Adding alerts (D) is a useful improvement but does not address the root cause of budget exhaustion."
+    },
+    {
+      "id": 46,
+      "section": 6,
+      "caseStudy": "Cymbal Retail",
+      "scenario": "Cymbal Retail inventory management system uses Cloud SQL for MySQL as its primary database. The current configuration has a single primary instance in us-central1-a with no standby. During last month zone maintenance event, the database was unavailable for 22 minutes. The team needs to reduce unplanned downtime and meet a 99.95% availability SLA for the database tier. What should you configure?",
+      "options": {
+        "A": "Enable Cloud SQL automatic storage increase to prevent storage-related outages.",
+        "B": "Enable Cloud SQL High Availability (HA) with a synchronous standby instance in a different zone; automatic failover is triggered by health checks and completes in approximately 60 to 120 seconds.",
+        "C": "Create a Cloud SQL read replica in a different zone and promote it to primary manually during a zone failure.",
+        "D": "Migrate the database to Cloud Spanner to eliminate single-zone failure risk entirely."
+      },
+      "correctAnswer": "B",
+      "explanation": "Cloud SQL HA maintains a hot standby in a different zone using synchronous replication. On primary failure, automatic failover completes in 60 to 120 seconds, reducing unplanned downtime from 22 minutes to under 2 minutes and supporting a 99.95% SLA. Automatic storage increase (A) prevents storage exhaustion outages but does not address zone failures. Read replicas (C) use asynchronous replication; promotion is manual and may involve data loss, making them unsuitable as an HA mechanism. Cloud Spanner (D) eliminates the risk but requires significant application refactoring and is a major architectural change."
+    },
+    {
+      "id": 47,
+      "section": 6,
+      "caseStudy": "Altostrat Media",
+      "scenario": "Altostrat Media's SRE team wants to build a monitoring strategy that detects viewer-impacting issues before users submit complaints. The service currently monitors CPU and memory utilization on streaming servers. The team wants to shift to a more proactive, user-experience-focused approach. Which observability strategy should you recommend?",
+      "options": {
+        "A": "Alert on infrastructure thresholds: CPU > 80%, memory > 90%, and disk utilization > 85% across all streaming servers.",
+        "B": "Create Cloud Monitoring uptime checks on each service endpoint and alert on any downtime detected.",
+        "C": "Define Service Level Indicators (SLIs) measuring stream start latency, buffering ratio, and error rate; create SLOs for each; and alert on SLO burn rate exceeding budget thresholds.",
+        "D": "Configure Cloud Logging log-based alerts to trigger on ERROR and CRITICAL severity log entries from streaming services."
+      },
+      "correctAnswer": "C",
+      "explanation": "SLI/SLO-based monitoring is the SRE best practice for detecting user-impacting issues proactively. SLIs like stream start latency, buffering ratio, and error rate directly measure viewer experience. Alerting on SLO burn rate (the rate at which the error budget is being consumed) provides early warning: if the burn rate is high, the team can act before the SLO is breached and before users notice widespread issues. Option A (infrastructure alerts) is cause-based monitoring that generates false alarms on metrics that don't always correlate with user impact. Option B (uptime checks) only detect complete service unavailability, missing degraded performance. Option D (log-based alerts) is reactive and generates noise from transient errors that may not affect overall user experience."
+    },
+    {
+      "id": 48,
+      "section": 6,
+      "caseStudy": "Altostrat Media",
+      "scenario": "Altostrat Media live streaming platform has an RTO of 15 minutes and an RPO of 1 minute. The platform runs on GKE in us-central1, uses Cloud Spanner for session metadata, and Cloud Storage for video segments. What disaster recovery architecture should you implement to meet these objectives?",
+      "options": {
+        "A": "Take daily Cloud Spanner database backups to Cloud Storage; restore from backup in a secondary region if the primary region fails.",
+        "B": "Deploy a warm standby in a second region with a scaled-down GKE cluster; use a Cloud Spanner multi-region instance for synchronous metadata replication; use a multi-region Cloud Storage bucket for video segments; use Global HTTP(S) Load Balancing with health checks for automatic traffic failover.",
+        "C": "Enable GKE cluster backup and restore; replicate Cloud Storage buckets using Storage Transfer Service on a schedule.",
+        "D": "Deploy a full hot standby in a second region and configure DNS failover with a 60-second TTL."
+      },
+      "correctAnswer": "B",
+      "explanation": "Meeting a 15-minute RTO and 1-minute RPO requires a warm standby that can be activated quickly with minimal data loss. Cloud Spanner multi-region instances provide synchronous replication with effectively zero RPO for metadata. Multi-region Cloud Storage ensures video segments are geo-redundant with no RPO. The warm GKE standby can be rapidly scaled up on failover, and Global Load Balancing health checks automate traffic redirection within the RTO. Daily backups (A) cannot satisfy a 1-minute RPO. GKE backup/restore and periodic Storage Transfer (C) are too slow for a 15-minute RTO. A full hot standby with DNS TTL failover (D) is over-provisioned and DNS propagation can jeopardize the RTO."
+    },
+    {
+      "id": 49,
       "section": 6,
       "caseStudy": null,
       "scenario": "A microservices application deployed on GKE experiences intermittent request failures that are reported by end users. The application spans 15 services, and requests traverse 6–8 services before completing. The SRE team spends hours manually correlating logs across services using Cloud Logging to find the root cause. Which observability capability most directly reduces Mean Time to Resolution (MTTR) for these multi-service failures?",
@@ -359,32 +723,18 @@
       "explanation": "Distributed tracing (Cloud Trace) provides end-to-end visibility into a single request's journey across all services, showing exactly where latency was introduced or where failures occurred. A waterfall view of spans makes it possible to identify the specific service or operation responsible for failures within minutes, without manually correlating logs across 15 services. Option A (aggregated logs) still requires manual correlation across service boundaries to link log entries from the same request. Option C (per-service dashboards) shows which service is failing but doesn't show how requests flow between services or what downstream effects a single service failure has. Option D (alerting) notifies that a problem exists but provides no root-cause information."
     },
     {
-      "id": 24,
-      "section": 2,
-      "caseStudy": "Cymbal Retail",
-      "scenario": "Cymbal Retail operates a 500-VM VMware vSphere environment on-premises, running a mix of Windows and Linux workloads including several legacy applications that cannot be modified, re-platformed, or re-architected due to vendor support constraints. The infrastructure team wants to migrate to Google Cloud while preserving all existing VMware tooling, networking configurations, and operational processes. Which migration approach best meets these requirements?",
+      "id": 50,
+      "section": 6,
+      "caseStudy": null,
+      "scenario": "Your SRE team wants to proactively validate the resilience of a microservices application on GKE by testing failure scenarios including pod terminations, network latency injection between services, and dependency unavailability. They want to measure system behavior using Cloud Monitoring during experiments and identify weaknesses before users are impacted. What approach should you implement?",
       "options": {
-        "A": "Use Migrate for Compute Engine (formerly Velostrata) to automatically convert VMware VMs to Compute Engine instances.",
-        "B": "Use Google Cloud VMware Engine (GCVE) to run the VMware vSphere environment natively on dedicated Google Cloud infrastructure.",
-        "C": "Containerize all VMs using Migrate to Containers and deploy to GKE Autopilot.",
-        "D": "Re-host workloads on Compute Engine N2 instances and reconfigure application dependencies manually."
+        "A": "Run sustained load tests at increasing concurrency levels until the system fails, then identify the bottleneck.",
+        "B": "Adopt chaos engineering practices using a tool such as Chaos Mesh or Litmus Chaos; define explicit hypotheses for each failure experiment; run experiments first in staging, then conduct production game days with Cloud Monitoring dashboards capturing SLIs throughout.",
+        "C": "Configure Cloud Monitoring uptime checks and synthetic monitors to detect failures before users report them.",
+        "D": "Implement retry logic and circuit breakers in every microservice to handle partial failures gracefully."
       },
       "correctAnswer": "B",
-      "explanation": "Google Cloud VMware Engine (GCVE) provides dedicated VMware infrastructure (vSphere, vSAN, NSX-T) on Google Cloud hardware, enabling a true lift-and-shift of the entire VMware environment without any changes to VMs, applications, or VMware tooling. Existing NSX networking, vMotion, vCenter management, and all VMware-native operations continue unchanged. This is the only option that truly preserves all existing VMware processes and supports legacy vendor-constrained applications. Option A (Migrate for Compute Engine) converts VMs to GCE instances, requiring driver changes and losing VMware-native operations—not suitable for vendor-constrained applications. Option C (Migrate to Containers) requires significant application changes. Option D (manual re-hosting) is labor-intensive and doesn't preserve VMware tooling or networking configurations."
-    },
-    {
-      "id": 25,
-      "section": 1,
-      "caseStudy": "Altostrat Media",
-      "scenario": "Altostrat Media wants to build a personalized content recommendation system using 3 years of viewer history (watch time, ratings, search history). The data science team wants to minimize the time from data to production predictions and reduce ML infrastructure management. The team has limited MLOps experience. Which approach best meets these requirements?",
-      "options": {
-        "A": "Train a custom collaborative filtering TensorFlow model on Vertex AI Workbench and deploy it to a Vertex AI Prediction Endpoint.",
-        "B": "Use BigQuery ML to create a matrix factorization model directly in BigQuery using SQL, and serve predictions from BigQuery ML using the ML.PREDICT function.",
-        "C": "Deploy a self-managed Apache Spark MLlib recommendation model on Dataproc clusters for training and a separate Flask API on GKE for serving.",
-        "D": "Use Vertex AI AutoML Tabular to train a recommendation scoring model on viewer history features and deploy to a managed Vertex AI Endpoint."
-      },
-      "correctAnswer": "D",
-      "explanation": "Vertex AI AutoML Tabular provides a fully managed, no-code/low-code ML training and deployment solution. The team provides structured viewer history data, AutoML handles feature engineering, model selection, hyperparameter tuning, and training. The resulting model is deployed to a managed Vertex AI Endpoint that auto-scales with no infrastructure management. This minimizes time to production and MLOps overhead for a team with limited experience. Option A (custom TensorFlow) requires significant ML engineering expertise and infrastructure management. Option B (BigQuery ML) is excellent for batch predictions but has limited support for real-time low-latency serving at scale needed for live recommendations. Option C (Spark MLlib on Dataproc) requires managing cluster infrastructure, writing custom Spark code, and operating a separate serving API—maximizing operational overhead."
+      "explanation": "Chaos engineering is the systematic practice of deliberately injecting failures to surface unknown weaknesses. The scientific method of hypothesis, controlled experiment, observe metrics, and conclude ensures experiments are safe and informative. Running in staging first validates the approach before production game days. Cloud Monitoring captures SLIs during experiments. Load testing (A) tests capacity limits and throughput, not resilience to specific failure modes. Synthetic monitoring (C) detects failures reactively but does not proactively discover weaknesses. Retry logic and circuit breakers (D) are important resilience patterns but do not validate actual system behavior under failure conditions."
     }
   ]
 }
