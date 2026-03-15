@@ -735,6 +735,356 @@
       },
       "correctAnswer": "B",
       "explanation": "Chaos engineering is the systematic practice of deliberately injecting failures to surface unknown weaknesses. The scientific method of hypothesis, controlled experiment, observe metrics, and conclude ensures experiments are safe and informative. Running in staging first validates the approach before production game days. Cloud Monitoring captures SLIs during experiments. Load testing (A) tests capacity limits and throughput, not resilience to specific failure modes. Synthetic monitoring (C) detects failures reactively but does not proactively discover weaknesses. Retry logic and circuit breakers (D) are important resilience patterns but do not validate actual system behavior under failure conditions."
+    },
+    {
+      "id": 51,
+      "section": 1,
+      "caseStudy": "Cymbal Retail",
+      "scenario": "Cymbal Retail is modernizing a legacy monolithic Java order management application into microservices. Multiple services must communicate, with some interactions requiring synchronous low-latency responses (inventory availability check, payment authorization) and others needing asynchronous processing (order confirmation email, loyalty-points update). Peak traffic during promotional events is 10x normal. Which communication architecture best supports these requirements?",
+      "options": {
+        "A": "Use direct REST calls between all microservices with Cloud Load Balancing to distribute traffic during peaks.",
+        "B": "Use Cloud Pub/Sub for all inter-service communication to fully decouple every service.",
+        "C": "Use synchronous gRPC for latency-sensitive calls (inventory, payment) and Cloud Pub/Sub with Eventarc for asynchronous events (email, loyalty points) so non-critical paths can absorb spikes independently.",
+        "D": "Use Cloud Tasks for all asynchronous operations and Cloud Endpoints for synchronous API management."
+      },
+      "correctAnswer": "C",
+      "explanation": "A hybrid communication model is the correct architectural pattern. gRPC is ideal for synchronous, low-latency calls where the caller must wait for a response (inventory check, payment). Pub/Sub is ideal for asynchronous events where the publisher does not need to wait for downstream processing (emails, loyalty updates). This decouples non-critical paths so that a 10x promotional spike queues in Pub/Sub rather than cascading latency through the synchronous call chain. Option A creates tight synchronous coupling and single points of failure. Option B adds unnecessary latency to operations that require immediate responses. Option D (Cloud Tasks) is designed for delayed or scheduled tasks rather than general event streaming."
+    },
+    {
+      "id": 52,
+      "section": 1,
+      "caseStudy": "Altostrat Media",
+      "scenario": "Altostrat Media needs to deliver 4K video to a rapidly growing audience in Latin America with sub-3-second startup time and uninterrupted playback on 20 Mbps connections. Current origin infrastructure is in us-central1 and their CDN contract is expiring. What architecture best achieves their latency and reliability goals?",
+      "options": {
+        "A": "Add a southamerica-east1 Cloud Storage bucket and configure DNS-based geographic routing to point Latin American users to it.",
+        "B": "Deploy additional GKE clusters in southamerica-east1 and use Anycast global IP for region selection.",
+        "C": "Use Media CDN (backed by Cloud Storage multi-region buckets) with edge PoPs throughout Latin America and configure adaptive bitrate (ABR) streaming profiles to ensure smooth playback on variable connections.",
+        "D": "Deploy a Compute Engine VM fleet in southamerica-east1 running nginx as a caching reverse proxy in front of the origin."
+      },
+      "correctAnswer": "C",
+      "explanation": "Media CDN is Google's purpose-built streaming CDN with PoPs throughout Latin America that serve cached content from the edge closest to the viewer, achieving sub-3-second startup times. ABR streaming automatically adjusts video quality to available bandwidth, preventing buffering. Multi-region Cloud Storage ensures origin durability with no single-region failure risk. DNS geographic routing (A) serves from origin buckets without edge caching and cannot guarantee sub-3-second startup at distance. Adding GKE clusters (B) without a CDN still serves from origin, missing the caching benefit. Self-managed nginx VMs (D) lack the global PoP coverage and scalability of a managed CDN."
+    },
+    {
+      "id": 53,
+      "section": 1,
+      "caseStudy": "Cymbal Retail",
+      "scenario": "Cymbal Retail's new order fulfillment microservice must communicate with warehouse management, payment processing, and shipping services. Business stakeholders require that if the payment service is temporarily unavailable, orders must be held and retried automatically rather than dropped. Which design pattern best addresses this durability requirement?",
+      "options": {
+        "A": "Use synchronous REST calls to all downstream services; implement exponential backoff retry logic within the order fulfillment service.",
+        "B": "Publish order events to Cloud Pub/Sub topics; each downstream service subscribes independently; configure dead-letter topics for failed message delivery; use Cloud Tasks for scheduled payment retries with custom delays.",
+        "C": "Implement a saga pattern using Cloud Spanner distributed transactions to maintain consistency across all services.",
+        "D": "Deploy an Istio service mesh and configure circuit breakers on every service-to-service call."
+      },
+      "correctAnswer": "B",
+      "explanation": "Pub/Sub provides at-least-once message delivery with configurable retry policies and dead-letter topics. When the payment service is down, messages accumulate durably in the subscription and are retried automatically by Pub/Sub without holding open HTTP connections. Cloud Tasks allows scheduling custom retry intervals for payment attempts. This achieves the 'hold and retry' requirement with no message loss. Synchronous REST with retries (A) holds connections, consumes threads, and creates timeout cascades under sustained service unavailability. Distributed transactions (C) cannot span external service boundaries and couple services tightly. Circuit breakers (D) prevent cascading failures but provide no message durability or automatic retry queuing."
+    },
+    {
+      "id": 54,
+      "section": 1,
+      "caseStudy": null,
+      "scenario": "Your enterprise has acquired three companies, each with active Google Cloud workloads in their own Google Cloud organizations. The parent company requires consolidated billing visibility, centralized security policy enforcement (e.g., allowed regions, service restrictions), and the ability for each acquired company to retain day-to-day administrative autonomy. Which resource hierarchy approach best satisfies all three requirements?",
+      "options": {
+        "A": "Migrate all workloads from acquired companies into the parent company's existing Google Cloud Organization immediately.",
+        "B": "Retain each company as a separate Google Cloud Organization; use cross-organization IAM bindings for centralized governance and a reseller account for billing consolidation.",
+        "C": "Consolidate all entities under a single Google Cloud Organization; create a top-level folder for each acquired company; assign Folder Admin roles to each company's administrators; apply Organization Policy constraints at the Organization node for security enforcement; link all projects to a single Billing Account.",
+        "D": "Create shared VPCs in the parent company's organization and peer them with each acquired company's organization for network-level governance."
+      },
+      "correctAnswer": "C",
+      "explanation": "A single GCP Organization with company-specific folders is the Google-recommended architecture for multi-entity enterprises. Organization Policy constraints applied at the Organization node (e.g., allowed regions, disable external IPs) cascade to all folders and projects, providing centralized security enforcement. Folder Admin roles delegated to each company grant autonomous resource management within their folder boundary. A single Billing Account provides unified cost visibility and allocation. Option A (immediate migration) is risky and disruptive for critical production workloads. Option B (separate organizations) cannot enforce org-level policies across organizations and makes billing consolidation complex. VPC peering (D) addresses network connectivity but not policy governance or billing consolidation."
+    },
+    {
+      "id": 55,
+      "section": 2,
+      "caseStudy": "Cymbal Retail",
+      "scenario": "Cymbal Retail's checkout service runs 20 replicas on a GKE Standard cluster with 40 nodes. A PodDisruptionBudget requires at least 15 replicas available at all times. The platform team must perform a Kubernetes minor version upgrade (1.27 to 1.28) with zero downtime to the service. Which upgrade strategy should you use?",
+      "options": {
+        "A": "Upgrade all 40 nodes simultaneously using a single GKE node pool upgrade command to minimize the upgrade window.",
+        "B": "Configure the node pool with surge upgrades (maxSurge=5, maxUnavailable=0); trigger the upgrade during a maintenance window; GKE adds surge nodes, drains existing nodes in batches while respecting the PodDisruptionBudget, and deletes old nodes after pods are rescheduled.",
+        "C": "Delete the existing cluster, create a new cluster with Kubernetes 1.28, and redeploy all workloads from the CI/CD pipeline.",
+        "D": "Create a new node pool running Kubernetes 1.28; manually cordon and drain each node in the old pool one by one; delete the old pool when empty."
+      },
+      "correctAnswer": "B",
+      "explanation": "GKE surge upgrades with maxSurge=5 and maxUnavailable=0 ensure that new-version nodes are added to the cluster before old nodes are drained, maintaining full cluster capacity. GKE honors PodDisruptionBudgets during node drain, so the upgrade will wait if fewer than 15 checkout replicas would remain available, guaranteeing zero downtime. Option A (simultaneous upgrade) would drain all nodes at once, violating the PDB. Option C (delete and recreate) causes complete service downtime. Option D (manual cordon/drain) can achieve zero downtime but is error-prone and does not leverage GKE's built-in automation; the engineer must also manually enforce the PDB constraint."
+    },
+    {
+      "id": 56,
+      "section": 2,
+      "caseStudy": "Altostrat Media",
+      "scenario": "Altostrat Media stores 10 PB of video content in Cloud Storage. Usage analysis shows: content under 30 days old is accessed frequently; content 30 to 365 days old is accessed roughly once a week; content 1 to 5 years old is accessed less than once a month; content older than 5 years is never accessed but must be retained for 7 years for licensing compliance. Which lifecycle policy minimizes storage costs while satisfying compliance?",
+      "options": {
+        "A": "Store everything in Standard storage; enable object versioning and delete previous versions after 30 days.",
+        "B": "Store new content in Standard; transition to Nearline after 30 days; transition to Coldline after 365 days; transition to Archive after 5 years; add a lifecycle deletion rule at 7 years.",
+        "C": "Store all content in Nearline storage to reduce costs while maintaining access.",
+        "D": "Store new content in Standard; transition to Coldline after 30 days; transition to Archive after 365 days."
+      },
+      "correctAnswer": "B",
+      "explanation": "Cloud Storage storage classes map directly to access frequency: Standard (frequent), Nearline (monthly), Coldline (quarterly), Archive (annual or less). The described pattern — frequent, then weekly, then monthly, then never — aligns perfectly with Standard to Nearline to Coldline to Archive. Transitioning to Archive at 5 years provides the cheapest long-term retention. A deletion rule at 7 years satisfies the licensing compliance requirement. Option A (all Standard) is the most expensive and does not reduce cost for ageing content. Option C (all Nearline) charges retrieval fees for frequently accessed new content. Option D transitions to Coldline too aggressively — weekly access to Coldline incurs high per-retrieval charges."
+    },
+    {
+      "id": 57,
+      "section": 2,
+      "caseStudy": null,
+      "scenario": "Your platform team manages 200 Google Cloud projects using Terraform stored in a Git repository. After an incident, the team discovers a developer manually modified a production firewall rule directly in the Cloud Console, causing a configuration drift that went undetected for three weeks. How should you prevent configuration drift and enforce infrastructure-as-code governance going forward?",
+      "options": {
+        "A": "Enable Cloud Audit Logs on all projects and schedule a weekly manual review comparing Terraform state files with actual resource configurations.",
+        "B": "Require all infrastructure changes to flow through a GitOps pipeline (pull request, Terraform plan review, merge, pipeline apply); deploy Policy Controller (Config Sync) to continuously audit resources against policy baselines and alert on drift; use Organization Policy and IAM Deny to restrict direct Console and gcloud access in production environments.",
+        "C": "Grant all developers read-only IAM roles in production to prevent manual changes; use a dedicated service account with broader permissions only for Terraform pipelines.",
+        "D": "Enable Cloud Recommender to surface infrastructure improvements and alert the team when resources deviate from best practices."
+      },
+      "correctAnswer": "B",
+      "explanation": "Preventing configuration drift requires both technical enforcement and continuous detection. A GitOps pipeline makes the VCS the single source of truth — changes applied only via CI/CD eliminate ad-hoc manual modifications. Policy Controller continuously compares live resource state against policy baselines and surfaces drift in near-real-time. IAM Deny and Organization Policy remove the ability for individuals to make out-of-band changes in production. Option A (weekly manual review) is reactive and slow — three-week detection is precisely the problem. Option C (read-only IAM) prevents manual changes but does not enforce the IaC workflow or detect pipeline-introduced drift. Option D (Recommender) provides best-practice suggestions but does not detect or prevent configuration drift."
+    },
+    {
+      "id": 58,
+      "section": 2,
+      "caseStudy": "Altostrat Media",
+      "scenario": "Altostrat Media's live video encoding service runs on a Managed Instance Group (MIG). During major broadcast events, encoding demand spikes 5x within 5 minutes. The current CPU-based autoscaler takes 8 to 10 minutes to provision enough instances, causing encoding queue backlog and viewer delay. What autoscaling change most effectively reduces scale-out latency for both known and unexpected events?",
+      "options": {
+        "A": "Permanently increase the minimum instance count in the MIG to pre-provision peak-event capacity.",
+        "B": "Switch to a custom metric autoscaler based on the Cloud Pub/Sub encoding-job subscription backlog (number of undelivered messages); set a low scale-up cooldown of 60 seconds.",
+        "C": "Configure a scheduled autoscaler to pre-scale the MIG 30 minutes before each known broadcast event based on the broadcast calendar.",
+        "D": "Combine scheduled autoscaling for known broadcast events with Pub/Sub backlog-based reactive autoscaling for unexpected spikes; this eliminates lag for planned peaks and provides rapid response for unplanned demand."
+      },
+      "correctAnswer": "D",
+      "explanation": "The combination of scheduled and metric-based autoscaling addresses both dimensions of the problem. Scheduled autoscaling pre-scales the MIG before known broadcast events, eliminating the 8 to 10 minute provisioning delay for predictable peaks. Custom metric scaling on the Pub/Sub backlog is far more responsive than CPU-based scaling for queue-processing workloads: as soon as encoding jobs accumulate, new instances are requested without waiting for CPU saturation. Together they cover planned and unplanned spikes. Permanent over-provisioning (A) wastes significant cost outside events. Pub/Sub scaling alone (B) still reacts after the spike begins. Scheduled scaling alone (C) does not handle unplanned surges."
+    },
+    {
+      "id": 59,
+      "section": 3,
+      "caseStudy": "Cymbal Retail",
+      "scenario": "Cymbal Retail has 50 Compute Engine VMs whose applications authenticate to Google Cloud services using downloaded JSON service-account key files stored as environment variables. A security audit finds that two key files were accidentally committed to a public GitHub repository. The security team wants to eliminate the entire class of credential-exposure risk for VM workloads. Which approach is the most secure and operationally practical?",
+      "options": {
+        "A": "Rotate all 50 service-account keys immediately; store the new keys in Secret Manager and inject them into VMs as environment variables at startup.",
+        "B": "Attach the appropriate service account directly to each Compute Engine VM instance; configure applications to use Application Default Credentials (ADC) which transparently obtain short-lived tokens from the instance metadata server, eliminating all key files.",
+        "C": "Encrypt every key file with Cloud KMS and store the encrypted blobs in Cloud Storage; decrypt at application startup.",
+        "D": "Store all service-account keys in HashiCorp Vault on-premises with automatic 30-day rotation."
+      },
+      "correctAnswer": "B",
+      "explanation": "Attaching a service account to a Compute Engine VM and using Application Default Credentials is the keyless authentication model — no JSON key file is ever created, stored, or transmitted. The metadata server issues short-lived OAuth 2.0 tokens on demand, and all Google Cloud client libraries use ADC automatically. This eliminates the entire credential-exposure attack surface. Option A (Secret Manager injection) is an improvement over environment variables but still creates a key that can be logged or exposed during injection. Option C (KMS encryption) does not protect the key during in-memory use. Option D (on-premises Vault) adds operational complexity and a network dependency without eliminating key files."
+    },
+    {
+      "id": 60,
+      "section": 3,
+      "caseStudy": "Altostrat Media",
+      "scenario": "Altostrat Media allows users to upload video thumbnails and short preview clips to a Cloud Storage bucket. The security team is concerned that users may upload malicious files disguised as media (e.g., executables renamed to .jpg). The content-moderation team also needs to detect sexually explicit or violent imagery before files are approved for public viewing. Which solution addresses both security scanning and content moderation?",
+      "options": {
+        "A": "Configure Cloud Storage CORS policies to restrict uploads to allowed MIME types based on the Content-Type request header.",
+        "B": "Trigger a Cloud Run service via Eventarc on every Cloud Storage upload; the service calls Cloud Vision API SafeSearch to detect explicit or violent content and inspects the file's magic bytes to validate the true file type; files failing either check are moved to a quarantine bucket; approved files are promoted to the public bucket.",
+        "C": "Use Cloud Armor to inspect incoming upload HTTP requests for malicious file signatures and block known bad hashes.",
+        "D": "Train a custom Vertex AI AutoML image classification model on safe and unsafe media samples to classify uploads."
+      },
+      "correctAnswer": "B",
+      "explanation": "A Cloud Run scanning pipeline triggered by Eventarc provides deep content inspection that neither network-layer tools nor header validation can. Inspecting magic bytes (file signature) detects disguised executables regardless of file extension or Content-Type header. Vision API SafeSearch is purpose-built to detect adult, violent, and disturbing imagery with high accuracy and no model-training burden. The quarantine-and-promote pattern ensures no unreviewed content reaches public storage. Option A (CORS/Content-Type) is trivially spoofable by setting the header to 'image/jpeg' on any file. Option C (Cloud Armor) operates at the HTTP layer and cannot read file contents. Option D (custom AutoML model) requires significant labeled training data, ongoing retraining, and will likely underperform the pre-trained SafeSearch API."
+    },
+    {
+      "id": 61,
+      "section": 3,
+      "caseStudy": null,
+      "scenario": "A financial services company is moving data processing workloads to Google Cloud. Regulations require that sensitive data must never traverse the public internet, that BigQuery datasets must not be accessible from outside a defined access perimeter even if credentials are compromised, and that lateral data movement between services inside Google's network must be restricted. Which combination of controls satisfies all three requirements?",
+      "options": {
+        "A": "Enable Private Google Access on all VPC subnets; configure VPC firewall rules to restrict traffic; use BigQuery authorized views to control dataset access.",
+        "B": "Configure VPC Service Controls to create a service perimeter enclosing BigQuery, Cloud Storage, and related APIs; enable Private Google Access and Private Service Connect so API traffic never traverses the public internet; apply VPC firewall rules for network-level access control within the VPC.",
+        "C": "Use Cloud Interconnect for on-premises connectivity; enable Cloud Armor on all public-facing services; use IAM Deny policies to restrict sensitive resource access.",
+        "D": "Deploy workloads in a Shared VPC; configure Private Service Connect endpoints for all Google APIs; apply an Organization Policy to restrict resource locations to specific regions."
+      },
+      "correctAnswer": "B",
+      "explanation": "VPC Service Controls creates a logical data perimeter that prevents data exfiltration from within the perimeter to the outside even when IAM credentials are valid — it evaluates the context (network origin) of every API call, not just the identity. This directly addresses the 'credentials compromised' threat. Private Google Access and Private Service Connect ensure all Google API traffic remains on Google's private network, never touching the public internet. VPC firewall rules provide additional network-level enforcement within the VPC. Option A (Private Google Access plus firewall plus authorized views) lacks the exfiltration prevention that VPC Service Controls provides. Option C does not create a data perimeter. Option D addresses network routing but not the data-exfiltration or perimeter-access requirements."
+    },
+    {
+      "id": 62,
+      "section": 3,
+      "caseStudy": "Cymbal Retail",
+      "scenario": "Cymbal Retail's checkout API experienced a distributed denial-of-service attack sending 500,000 requests per second, causing service degradation. The security team needs to block volumetric DDoS attacks, rate-limit suspicious source IPs, block SQL injection attempts in request parameters, and allow legitimate customers to continue shopping with minimal disruption. Which service and configuration should you implement?",
+      "options": {
+        "A": "Configure Cloud Load Balancing backend connection limits and enable health checks to route around degraded backend instances.",
+        "B": "Enable Cloud Armor with Adaptive Protection (ML-based Layer 7 DDoS detection); attach Google-managed threat intelligence rules for known malicious IPs; add preconfigured WAF rules for SQL injection and XSS; configure a throttling rule on the checkout endpoint with a per-IP request-rate threshold.",
+        "C": "Update VPC firewall rules to block known malicious CIDR ranges; implement application-level rate limiting in the checkout service source code.",
+        "D": "Run a self-managed ModSecurity WAF on Compute Engine VMs as a reverse proxy in front of Cloud Load Balancing."
+      },
+      "correctAnswer": "B",
+      "explanation": "Cloud Armor is Google Cloud's purpose-built DDoS protection and WAF, addressing every stated requirement in a single managed service. Adaptive Protection uses ML to detect and mitigate volumetric Layer 7 DDoS attacks within seconds. Google-managed threat intelligence lists are automatically updated with malicious IP ranges. Preconfigured WAF rules based on the OWASP ModSecurity Core Rule Set detect SQL injection and XSS. Per-IP rate limiting throttles suspicious sources while legitimate traffic continues. Option A (load balancer limits) provides basic throughput control but no WAF capability or DDoS intelligence. Option C (VPC firewall rules) operates at Layer 4 and cannot inspect HTTP request bodies for injection payloads. Option D (self-managed ModSecurity) adds operational overhead and lacks adaptive DDoS intelligence."
+    },
+    {
+      "id": 63,
+      "section": 3,
+      "caseStudy": null,
+      "scenario": "Your organization's security policy requires that only container images built by the approved CI/CD pipeline, signed with a cryptographic attestation, and scanned for critical CVEs may be deployed to production GKE clusters. Developers must not be able to bypass this control even if they hold Kubernetes deployment permissions. Which implementation satisfies this requirement?",
+      "options": {
+        "A": "Configure a Kubernetes admission webhook that checks all incoming Deployment specs against a manually maintained allowlist of approved image digests.",
+        "B": "Enable Binary Authorization on the GKE cluster; create an Attestor backed by a Cloud KMS asymmetric key; configure the CI/CD pipeline to create a signed attestation only after Artifact Registry vulnerability scanning reports zero critical CVEs; set the Binary Authorization policy to require attestations for all images and enforce it on all namespaces.",
+        "C": "Restrict kubectl apply permissions via Kubernetes RBAC so that only the CI/CD service account can create or update Deployments.",
+        "D": "Configure Artifact Registry to block image pulls when Vulnerability Scanning reports critical CVEs."
+      },
+      "correctAnswer": "B",
+      "explanation": "Binary Authorization enforces cryptographic attestation-based admission control at the Kubernetes API server level. Even a user with full kubectl permissions cannot deploy an image that lacks a valid attestation. The attestation is produced by the CI/CD pipeline only after a clean vulnerability scan, creating a verifiable, tamper-proof chain from approved build to running container. Cloud KMS signs the attestation, preventing forgery. Option A (allowlist webhook) requires constant manual maintenance and does not cryptographically link images to the build pipeline. Option C (RBAC) restricts who can deploy but does not prevent the CI/CD pipeline from deploying vulnerable images. Option D (Artifact Registry pull policy) blocks vulnerable images but does not enforce that they came from the approved pipeline."
+    },
+    {
+      "id": 64,
+      "section": 4,
+      "caseStudy": "Cymbal Retail",
+      "scenario": "Cymbal Retail's e-commerce backend runs a stable fleet of 500 n2-standard-8 Compute Engine VMs. This fleet has operated at full scale for 18 months with no planned downsizing. Instances can tolerate replacement within 10 minutes if one fails, but the workload must not be interrupted by Google-initiated preemptions. The current on-demand monthly bill is $450,000. What pricing strategy provides the greatest cost reduction?",
+      "options": {
+        "A": "Convert all 500 instances to Spot VMs, relying on the 10-minute replacement tolerance to recover preempted instances.",
+        "B": "Purchase 1-year Committed Use Discounts (CUDs) for the baseline capacity of 500 VMs, providing approximately 37% savings; evaluate 3-year CUDs for approximately 55% savings on the committed portion.",
+        "C": "Rely on Sustained Use Discounts (SUDs), which automatically apply after 25% monthly usage and provide up to 30% discount without any commitment.",
+        "D": "Run 50% Spot VMs and 50% on-demand VMs to balance cost savings and availability."
+      },
+      "correctAnswer": "B",
+      "explanation": "For a stable, long-running baseline with no expected scale reduction, Committed Use Discounts provide the highest guaranteed savings — approximately 37% for a 1-year commitment and 55% for a 3-year commitment on the committed CPU and memory. The 18-month operating history confirms the workload is a good fit for commitment. Spot VMs (A) are inappropriate for the core e-commerce backend: they can be preempted with only a 30-second notice, not a 10-minute notice — the 10-minute tolerance refers to instance failure, not Google-initiated preemption. SUDs (C) apply automatically (already in effect) and deliver up to 30%, but CUDs deliver significantly more savings for predictable workloads. The mixed Spot and on-demand approach (D) is a compromise that does not maximize savings for a fully stable workload."
+    },
+    {
+      "id": 65,
+      "section": 4,
+      "caseStudy": "Altostrat Media",
+      "scenario": "Altostrat Media ingests 500 GB of streaming telemetry data into BigQuery daily. The data science team queries the last 7 days intensively; compliance teams run queries against up to 2 years of historical data on a quarterly basis. BigQuery storage costs have reached $60,000 per month. Which optimisation strategy provides the greatest storage-cost reduction with minimal query-complexity impact?",
+      "options": {
+        "A": "Set a table expiration policy to delete data older than 7 days to eliminate storage used by historical data.",
+        "B": "Partition all tables by ingestion date; allow BigQuery's automatic long-term storage pricing to apply a 50% discount to table partitions not modified for 90 consecutive days; add clustering on the most common filter columns to reduce bytes scanned per query.",
+        "C": "Export data older than 90 days to Cloud Storage in Parquet format using Coldline storage; create BigQuery external tables over the exported data for compliance queries.",
+        "D": "Purchase BigQuery Reservations and enable BI Engine for the data science team to reduce per-query slot consumption."
+      },
+      "correctAnswer": "B",
+      "explanation": "BigQuery's long-term storage pricing automatically applies a 50% price reduction to any table partition not modified for 90 consecutive days — no export, ETL, or external tables required. Partitioning by date both enables the long-term discount at the partition level and reduces bytes scanned by limiting queries to relevant date ranges. Clustering reduces bytes scanned further. This achieves significant cost reduction with no operational complexity and keeps compliance queries fully native. Deleting data older than 7 days (A) violates the 2-year compliance retention requirement. Exporting to Cloud Storage (C) achieves cost reduction but adds operational complexity with scheduled exports, Parquet conversion, and external table maintenance. Reservations and BI Engine (D) reduce query costs, not storage costs."
+    },
+    {
+      "id": 66,
+      "section": 4,
+      "caseStudy": "Cymbal Retail",
+      "scenario": "Cymbal Retail's data engineering team runs 200 BigQuery jobs per day. Analysis shows 80% of slots are consumed by 15 nightly ETL jobs, leaving insufficient capacity for 50 data analysts running ad-hoc queries during business hours. Analysts regularly report slow query performance. What BigQuery capacity management strategy resolves this slot contention?",
+      "options": {
+        "A": "Submit a quota increase request to Google to raise the on-demand slot limit for the project.",
+        "B": "Purchase BigQuery Reservations; create two named reservations — one for ETL jobs and one for analyst queries — assign the respective projects or job labels; enable idle slot sharing so each reservation can use unutilised slots from the other.",
+        "C": "Move all nightly ETL jobs to Cloud Dataflow pipelines to free BigQuery slots entirely.",
+        "D": "Require all analysts to schedule queries to run between midnight and 6 AM when ETL jobs have completed."
+      },
+      "correctAnswer": "B",
+      "explanation": "BigQuery Reservations provide dedicated slot capacity with workload isolation. Two named reservations — one for ETL, one for analytics — give each workload a guaranteed slot floor, eliminating contention. Idle slot sharing ensures that when ETL jobs are inactive, their allocated slots are available to analysts, maximising utilization. This is the Google-recommended approach for mixed ETL and interactive workloads in the same organization. Quota increases (A) increase the on-demand pool but do not prevent a burst of ETL jobs from monopolising slots. Migrating ETL to Dataflow (C) is a significant engineering effort and does not prevent future slot contention from other heavy workloads. Scheduling constraints (D) are operationally impractical and block analytical productivity during business hours."
+    },
+    {
+      "id": 67,
+      "section": 4,
+      "caseStudy": null,
+      "scenario": "Your organization's Cloud Run production service handles 10,000 requests per minute. Over two weeks, P99 latency has grown from 120 ms to 450 ms. Application logs show no errors, and CPU utilization remains below 40%. The development team suspects a memory leak or an inefficient code path introduced in a recent deployment. Which observability tool most efficiently identifies the root cause?",
+      "options": {
+        "A": "Add Cloud Monitoring dashboards with 1-minute granularity tracking P50, P90, and P99 latency to better observe the trend over time.",
+        "B": "Enable Cloud Profiler on the Cloud Run service; analyze CPU flame graphs for disproportionate execution time and heap allocation graphs for progressive memory growth; correlate the profiling data with Cloud Trace span durations to identify which code path introduced the latency regression.",
+        "C": "Insert structured log statements at every major function boundary and query Cloud Logging to compute average per-function execution times.",
+        "D": "Enable Error Reporting to capture unhandled exceptions and correlate them with the latency increase timeline."
+      },
+      "correctAnswer": "B",
+      "explanation": "Cloud Profiler continuously samples CPU time and heap allocations in production with less than 1% CPU overhead, generating flame graphs that visually identify which functions consume disproportionate execution time or exhibit progressive memory growth. For a latency regression with no errors and low CPU, profiling directly surfaces the inefficient code path. Cloud Trace shows which spans are slow but not why — profiling reveals the internal function-level cause. Additional dashboards (A) track the symptom but not the cause. Manual logging (C) requires code changes, adds latency, and cannot retroactively diagnose a regression already in production. Error Reporting (D) captures exceptions, which the question explicitly states are not occurring."
+    },
+    {
+      "id": 68,
+      "section": 5,
+      "caseStudy": "Cymbal Retail",
+      "scenario": "Cymbal Retail needs to migrate a 3 TB Oracle 19c database to Cloud Spanner over a 4-month timeline. The database supports the live e-commerce platform running at 2,000 TPS. The business requirement is zero downtime and continuous data consistency during the migration. Which migration approach meets these requirements?",
+      "options": {
+        "A": "Export the Oracle database to a dump file during a planned maintenance window; transform the schema; import into Cloud Spanner in a single cutover operation.",
+        "B": "Use Database Migration Service (DMS) to stream changes from Oracle to Cloud Spanner continuously; run both systems in parallel; shift traffic incrementally to Spanner after validation.",
+        "C": "Export Oracle data to CSV files, upload to Cloud Storage, and use a Dataflow batch job to load Cloud Spanner; switch application traffic after the full batch load completes.",
+        "D": "Use a CDC-based replication tool such as Datastream to capture Oracle redo-log changes and replicate them to Cloud Spanner in near real-time; validate data parity over several weeks; perform a zero-downtime cutover by switching application connection strings when replication lag approaches zero."
+      },
+      "correctAnswer": "D",
+      "explanation": "CDC (Change Data Capture) replication is the standard approach for zero-downtime migration of a high-TPS live database. CDC tools capture redo-log changes and replay them against the target in near real-time, maintaining sub-second replication lag during extended parallel validation. The final cutover — switching connection strings — takes seconds with near-zero data loss. A maintenance-window export (A) requires downtime and is impractical for a 3 TB database with a zero-downtime requirement. Batch CSV export (C) creates a growing data gap that cannot be closed without a downtime window. DMS (B) does not currently provide a direct, fully managed Oracle-to-Cloud-Spanner migration path and would not cover all Oracle-specific schema patterns."
+    },
+    {
+      "id": 69,
+      "section": 5,
+      "caseStudy": "Altostrat Media",
+      "scenario": "Altostrat Media wants to release a new version of their video encoding API that adds GPU-accelerated transcoding. The release took 6 months to develop. They need to validate the new version under real production traffic, limit blast radius if bugs are found, and enable immediate rollback. Which deployment strategy best achieves these goals?",
+      "options": {
+        "A": "Deploy the new version to a staging environment, run performance tests, then deploy directly to 100% of production traffic during a low-traffic window.",
+        "B": "Use a canary deployment: initially route 5% of production traffic to the new version; monitor GPU utilization, encoding speed, error rate, and video quality metrics for 48 hours; progressively increase traffic to 25%, 50%, and 100% only if metrics remain healthy; use Cloud Run traffic splitting or Argo Rollouts to automate the progression and trigger automatic rollback if the error rate exceeds a defined threshold.",
+        "C": "Use blue/green deployment: provision a full parallel production environment running the new version; switch 100% of traffic at once via Cloud Load Balancing; roll back by switching traffic back to the previous environment.",
+        "D": "Use a feature flag to enable GPU transcoding for 1% of videos and gradually increase the flag percentage while monitoring GPU cluster metrics."
+      },
+      "correctAnswer": "B",
+      "explanation": "Canary deployment progressively exposes the new version to a small fraction of real production traffic, limiting blast radius while obtaining genuine production validation that staging cannot replicate. Automated traffic promotion or rollback based on defined metric thresholds removes human latency from the go/no-go decision. Blue/green (C) eliminates blast-radius protection since 100% of traffic switches simultaneously, and provisioning a full parallel GPU environment is significantly more expensive. Staging-only testing (A) does not validate production-scale GPU behavior or real-world load patterns. Feature flags (D) control feature visibility within an application, not the infrastructure deployment of a new service version with different compute requirements."
+    },
+    {
+      "id": 70,
+      "section": 5,
+      "caseStudy": null,
+      "scenario": "Your organization uses Terraform to manage Google Cloud infrastructure across 30 projects. A critical incident occurred when a developer ran 'terraform destroy' in the wrong workspace, deleting a production Cloud SQL database. Recovery using Cloud SQL backups took 4 hours. Which combination of controls best prevents a recurrence and minimizes recovery time if it does occur?",
+      "options": {
+        "A": "Require all Terraform operations to execute through a CI/CD pipeline with a mandatory human-approval gate before any apply or destroy action; add the 'prevent_destroy = true' lifecycle rule to all critical resources; enable Cloud SQL Point-in-Time Recovery (PITR) and automated backups with at least 7-day retention.",
+        "B": "Revoke all developer IAM permissions for production projects so only the Terraform service account can make changes.",
+        "C": "Implement workspace naming conventions and add a pre-run shell script that displays the current workspace and prompts for manual confirmation before any destructive operation.",
+        "D": "Apply the constraints/sql.restrictPublicIp Organization Policy and enable deletion protection flags on Cloud SQL instances through the Cloud Console."
+      },
+      "correctAnswer": "A",
+      "explanation": "Defence in depth is required. The CI/CD pipeline with an approval gate prevents ad-hoc terraform destroy commands from any individual. The prevent_destroy lifecycle rule causes Terraform to return a plan error if any plan would destroy the protected resource, requiring explicit removal from code and triggering a code review. Cloud SQL PITR allows recovery to within seconds of the incident rather than to the last scheduled backup, reducing the 4-hour recovery window to minutes. Option B prevents the accidental action but does not prevent pipeline-triggered destroys or insider threats on the CI/CD service account. Option C relies on human attention at runtime and can be bypassed. Option D restricts public IP and UI deletion but does not prevent terraform destroy from the pipeline."
+    },
+    {
+      "id": 71,
+      "section": 5,
+      "caseStudy": "Altostrat Media",
+      "scenario": "Altostrat Media exposes a public content API used by 200 third-party partners. The API team needs to enforce per-partner rate limits, collect per-partner usage analytics, support simultaneous v1 and v2 API versions, and add OAuth 2.0 token validation — all without modifying the backend service code. Which Google Cloud service addresses all these requirements?",
+      "options": {
+        "A": "Implement rate limiting, versioning routing, and authentication logic directly in the backend service; use Cloud Load Balancing URL maps to separate v1 and v2 traffic.",
+        "B": "Deploy Apigee API Management in front of the backend services; configure API products with per-partner quota policies; apply an OAuth 2.0 verification policy at the proxy layer; create separate API proxies for v1 and v2 with backend routing rules; use Apigee Analytics for detailed per-partner usage reporting.",
+        "C": "Use Cloud Endpoints for API versioning with OpenAPI specs; configure Firebase Authentication for OAuth 2.0; implement rate limiting using Cloud Armor security policies.",
+        "D": "Use API Gateway with OpenAPI specifications for v1 and v2; configure Identity Platform for OAuth 2.0; apply Cloud Armor for DDoS and rate limiting."
+      },
+      "correctAnswer": "B",
+      "explanation": "Apigee is Google Cloud's enterprise-grade API management platform and is purpose-built for every stated requirement. API products enforce per-partner rate limits and quotas at the proxy layer without any backend code changes. The OAuth 2.0 verify-access-token policy validates tokens transparently. Multiple API proxies run simultaneously for v1 and v2. Apigee Analytics provides out-of-the-box per-developer and per-partner detailed usage dashboards. Option A requires backend code changes, violating the stated constraint. Option C — Cloud Endpoints handles versioning but Cloud Armor is a WAF and DDoS tool, not a per-partner API quota enforcer, and Endpoints lacks comprehensive per-partner analytics. Option D (API Gateway) is suitable for lightweight internal APIs but lacks the enterprise quota management, developer portal, and analytics capabilities that Apigee provides."
+    },
+    {
+      "id": 72,
+      "section": 6,
+      "caseStudy": "Cymbal Retail",
+      "scenario": "Cymbal Retail's checkout service has a 30-day rolling error-rate SLO of 99.9% (error budget of 1,000 errors per million requests). On Day 20, the SRE team reports that 850 of the 1,000 allowed errors have already been consumed. A new feature deployment is scheduled for Day 22. What action should the SRE team take?",
+      "options": {
+        "A": "Proceed with the Day 22 deployment as planned; the SLO has not been breached yet.",
+        "B": "Freeze non-critical feature deployments for the remainder of the 30-day window; investigate and remediate the error sources driving budget consumption; defer the Day 22 release until the error rate stabilises or the window resets.",
+        "C": "Renegotiate the SLO from 99.9% to 99.5% for the remainder of the month to provide more error budget headroom.",
+        "D": "Enable Cloud Monitoring SLO burn-rate alerts to notify the on-call engineer when the SLO is breached, then proceed with the deployment."
+      },
+      "correctAnswer": "B",
+      "explanation": "With 85% of the error budget consumed by Day 20 and only 150 errors of budget remaining for 10 days, deploying a new feature risks burning the rest of the budget and breaching the SLO. The SRE principle is to treat error budget depletion as a signal to slow down risky changes and invest in reliability. Freezing non-critical deployments, investigating the error sources, and deferring the release protects the SLO and the customer experience. Deploying anyway (A) ignores the budget signal and risks a breach. Changing the SLO (C) undermines the reliability agreement with customers and is not a legitimate operational response. Setting up breach alerts (D) is reactive — the purpose of error budgets is to act before a breach, not after."
+    },
+    {
+      "id": 73,
+      "section": 6,
+      "caseStudy": "Altostrat Media",
+      "scenario": "Altostrat Media's live-sports streaming platform has a 99.99% availability SLO. A 35-minute regional GCP incident in us-central1 caused an SLO breach. The engineering team wants to implement a multi-region active-active architecture to prevent future region-level failures from breaching the SLO. Which design achieves the target availability?",
+      "options": {
+        "A": "Enable Cloud SQL High Availability in us-central1 with automatic zone-level failover; use a GKE regional cluster for zone-level redundancy within the region.",
+        "B": "Deploy the full application stack in us-central1 and us-east1; use Global HTTP(S) Load Balancing with backend health checks for sub-minute automatic region failover; use a Cloud Spanner multi-region instance for zero-RPO metadata replication; configure Cloud CDN multi-region caching so video segments are served from the edge even during origin issues; use cross-region Cloud Pub/Sub for durable event processing.",
+        "C": "Distribute a Managed Instance Group across multiple zones within us-central1 for increased intra-region redundancy.",
+        "D": "Enable Cloud Armor DDoS protection and expand Cloud CDN global caching to reduce origin load and improve resilience."
+      },
+      "correctAnswer": "B",
+      "explanation": "A 99.99% SLO permits approximately 52 minutes of downtime per year. A single region cannot satisfy this SLO when a 35-minute incident already caused a breach. Active-active multi-region with Global HTTP(S) Load Balancing provides health-check-driven automatic failover between regions in under a minute, well within the annual downtime budget. Cloud Spanner multi-region replication ensures zero RPO for session metadata. Cloud CDN edge caching absorbs the blast radius for video segments even if the origin is impacted. Cross-region Pub/Sub ensures durable event processing. Option A (zone HA in same region) does not protect against region-level outages. Option C (multi-zone MIG) is zone-redundant, not region-redundant. Option D (Cloud Armor plus CDN) reduces load but provides no dynamic content failover for a full regional outage."
+    },
+    {
+      "id": 74,
+      "section": 6,
+      "caseStudy": null,
+      "scenario": "During a production incident, an on-call engineer spent 45 minutes reviewing multiple runbooks before attempting three unsuccessful manual remediation steps. After 90 minutes they escalated; the system was restored after 3 hours total. The post-mortem found that an automated fix for this known failure mode existed but was not linked from the alert or the runbook, and the engineer lacked visibility into a deployment made 2 hours before the incident. How should you redesign the incident response process to reduce MTTR?",
+      "options": {
+        "A": "Improve runbook formatting and assign senior engineers to all on-call rotations so they have more system context.",
+        "B": "Enrich Cloud Monitoring alerts with direct links to relevant runbooks and recent Cloud Deploy deployment history; implement automated remediation playbooks using Cloud Workflows that attempt known fixes before paging a human; configure alert grouping and noise reduction; use an incident management tool that surfaces the change-deployment timeline alongside the incident; conduct regular GameDays to build on-call muscle memory.",
+        "C": "Add more Cloud Monitoring dashboards for each component so engineers can quickly visualise the health of the entire system.",
+        "D": "Implement a formal on-call SLA requiring acknowledgment within 5 minutes and resolution within 30 minutes for all P1 incidents."
+      },
+      "correctAnswer": "B",
+      "explanation": "The post-mortem identified specific, actionable gaps: missing links from alerts to runbooks and deployments, lack of automation for a known fix, and absent deployment context. Automated remediation (Cloud Workflows) executes documented fixes before paging, eliminating the 45-minute search and failed manual attempts. Alert enrichment with runbook links and deployment history gives the on-call engineer immediate context, addressing both gaps identified in the post-mortem. GameDays build familiarity before incidents occur. Option A (senior engineers plus better docs) improves runbook quality but does not automate remediation or surface deployment context in real time. Option C (more dashboards) adds information without reducing cognitive load at 2 AM. Option D (SLAs) creates accountability but does not address the root causes identified in the post-mortem."
+    },
+    {
+      "id": 75,
+      "section": 6,
+      "caseStudy": "Cymbal Retail",
+      "scenario": "Cymbal Retail operates a Cloud SQL for MySQL instance (db-n1-standard-8, 500 GB) in us-central1 as the backend for their order management system. The current configuration uses automated backups but has no High Availability replica. A planned Google maintenance event caused 25 minutes of downtime that the business cannot accept. The team needs recovery time under 60 seconds for both planned maintenance and unplanned instance failures. Which configuration achieves this?",
+      "options": {
+        "A": "Enable automated backups with PITR; this allows restoration to any point within the last 7 days, meeting the recovery objective.",
+        "B": "Enable Cloud SQL High Availability (HA), which provisions a hot standby instance in a different zone with synchronous replication; failover is automatic, typically completes in 20 to 60 seconds for both planned maintenance events and unplanned failures; schedule maintenance windows during low-traffic periods to minimize business impact.",
+        "C": "Create a Cloud SQL read replica in us-central1 and promote it manually to primary if the main instance fails.",
+        "D": "Run a second independent Cloud SQL instance; use a keepalived script on a Compute Engine VM to monitor the primary and update a Cloud DNS A record to the standby if the primary becomes unreachable."
+      },
+      "correctAnswer": "B",
+      "explanation": "Cloud SQL HA provisions a hot standby in a different zone within the same region with synchronous replication, ensuring zero data loss on failover. The Cloud SQL service manages failover automatically — no human intervention — and completes in 20 to 60 seconds, meeting the sub-60-second RTO for both planned and unplanned events. During planned Google maintenance, Cloud SQL HA instances fail over to the standby before maintenance begins, eliminating the maintenance downtime that triggered this requirement. PITR (A) restores data but the restore process for a 500 GB database takes far longer than 60 seconds. Manual read-replica promotion (C) requires human intervention and takes several minutes, failing the RTO. Custom keepalived and DNS (D) is operationally fragile and DNS TTL propagation delays can exceed 60 seconds."
     }
   ]
 }
