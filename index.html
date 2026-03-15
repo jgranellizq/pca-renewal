@@ -101,6 +101,44 @@
     .case-studies ul { padding-left: 20px; }
     .case-studies li { font-size: .85rem; color: var(--text-secondary); margin-bottom: 4px; }
 
+    /* ── Exam mode selector ── */
+    .exam-mode-selector {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      margin-bottom: 28px;
+      flex-wrap: wrap;
+    }
+
+    .exam-mode-btn {
+      flex: 1;
+      min-width: 200px;
+      max-width: 280px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      padding: 16px 20px;
+      border-radius: 10px;
+      border: 2px solid var(--border);
+      background: var(--surface);
+      cursor: pointer;
+      transition: border-color .15s, background .15s, box-shadow .15s;
+      text-align: center;
+    }
+
+    .exam-mode-btn:hover { border-color: var(--google-blue); background: #f0f4ff; }
+
+    .exam-mode-btn.selected {
+      border-color: var(--google-blue);
+      background: #e8f0fe;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .exam-mode-btn .mode-icon { font-size: 1.6rem; }
+    .exam-mode-btn .mode-title { font-size: .95rem; font-weight: 700; color: var(--text-primary); }
+    .exam-mode-btn .mode-desc  { font-size: .78rem; color: var(--text-secondary); line-height: 1.4; }
+
     /* ── Buttons ── */
     .btn {
       display: inline-flex;
@@ -501,6 +539,19 @@
         </ul>
       </div>
 
+      <div class="exam-mode-selector" id="exam-mode-selector">
+        <button class="exam-mode-btn selected" data-file="questions.json" data-questions="75" data-time="~150 min" id="mode-standard">
+          <span class="mode-icon">🏛️</span>
+          <span class="mode-title">Full PCA Renewal Exam</span>
+          <span class="mode-desc">75 questions · All 6 sections · Cymbal Retail &amp; Altostrat Media case studies</span>
+        </button>
+        <button class="exam-mode-btn" data-file="questions-ai.json" data-questions="25" data-time="~50 min" id="mode-ai">
+          <span class="mode-icon">🤖</span>
+          <span class="mode-title">AI / ML Focus Exam</span>
+          <span class="mode-desc">25 questions · Vertex AI, Gemini, MLOps, GenAI architectures</span>
+        </button>
+      </div>
+
       <button class="btn btn-primary" id="start-btn">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="5 3 19 12 5 21 5 3"/></svg>
         Begin Exam
@@ -581,19 +632,40 @@
 
 <script>
 (async () => {
+  // ── Exam mode selection ─────────────────────────────────────────────────────
+  let selectedFile = 'questions.json';
+
+  const modeButtons = document.querySelectorAll('.exam-mode-btn');
+
+  // Update info-grid values based on selected mode
+  function updateInfoGrid() {
+    const selected = document.querySelector('.exam-mode-btn.selected');
+    if (!selected) return;
+    const nq   = selected.dataset.questions;
+    const time = selected.dataset.time;
+    const infoValues = document.querySelectorAll('.info-item .value');
+    if (infoValues[0]) infoValues[0].textContent = nq;
+    if (infoValues[2]) infoValues[2].textContent = time;
+  }
+
+  modeButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      modeButtons.forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+      selectedFile = btn.dataset.file;
+      updateInfoGrid();
+    });
+  });
+
   // ── Load questions ──────────────────────────────────────────────────────────
   let questions = [];
   let sections  = [];
 
-  try {
-    const res  = await fetch('questions.json');
+  async function loadQuestions(file) {
+    const res  = await fetch(file);
     const data = await res.json();
     questions  = data.questions;
     sections   = data.exam.sections;
-  } catch (e) {
-    document.querySelector('.app-container').innerHTML =
-      '<div style="padding:40px;text-align:center;color:#ea4335">Failed to load questions.json. Please serve this file over HTTP.</div>';
-    return;
   }
 
   // ── State ───────────────────────────────────────────────────────────────────
@@ -771,7 +843,14 @@
   });
 
   // ── Start ────────────────────────────────────────────────────────────────────
-  startBtn.addEventListener('click', () => {
+  startBtn.addEventListener('click', async () => {
+    // Load selected question file
+    try {
+      await loadQuestions(selectedFile);
+    } catch (e) {
+      alert(`Failed to load ${selectedFile}. Please serve this app over HTTP.`);
+      return;
+    }
     current = 0;
     Object.keys(answers).forEach(k => delete answers[k]);
     skipped.clear();

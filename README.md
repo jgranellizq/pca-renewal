@@ -26,7 +26,8 @@ Questions assess architectural judgment, technical depth, and operational reason
 | File | Description |
 |------|-------------|
 | `index.html` | Interactive single-page exam application (open in browser) |
-| `questions.json` | Structured question data: scenarios, options, correct answers, explanations |
+| `questions.json` | Full PCA Renewal exam: 75 scenario-based questions across all 6 sections |
+| `questions-ai.json` | AI/ML Focus exam: 25 questions heavily focused on Vertex AI, Gemini, MLOps, and GenAI architectures |
 
 ## Running the Exam
 
@@ -44,6 +45,15 @@ npx serve .
 **Option 3 – VS Code Live Server extension:** right-click `index.html` → _Open with Live Server_.
 
 > **Note:** The exam must be served over HTTP (not opened as a `file://` URL) because `index.html` fetches `questions.json` via the Fetch API.
+
+## Exam Modes
+
+The application supports two exam modes selectable from the start screen:
+
+| Mode | File | Questions | Estimated Time | Focus |
+|------|------|-----------|----------------|-------|
+| **Full PCA Renewal Exam** | `questions.json` | 75 | ~150 min | All 6 sections, both case studies |
+| **AI / ML Focus Exam** | `questions-ai.json` | 25 | ~50 min | Vertex AI, Gemini, MLOps, GenAI, Document AI, Vector Search |
 
 ## Exam Format
 
