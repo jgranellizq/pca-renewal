@@ -4,7 +4,7 @@ An interactive practice exam for the **Google Cloud Professional Cloud Architect
 
 ## Overview
 
-This repository contains 25 scenario-based exam questions aligned with:
+This repository contains 75 scenario-based exam questions aligned with:
 
 - [PCA Renewal Exam Guide](https://services.google.com/fh/files/misc/professional_cloud_architect_renewal_exam_guide_eng.pdf)
 - [Cymbal Retail Case Study](https://services.google.com/fh/files/misc/cymbal_retail_case_study_english.pdf)
@@ -47,9 +47,9 @@ npx serve .
 
 ## Exam Format
 
-- **25 questions** — multiple choice, one correct answer each
-- **~50 minutes** estimated completion time
-- **70% passing score** (18 / 25 correct)
+- **75 questions** — multiple choice, one correct answer each
+- **~150 minutes** estimated completion time
+- **70% passing score** (53 / 75 correct)
 - Instant feedback with detailed explanations after each answer
 - Per-section score breakdown on the results screen
 - Full answer review with explanations
@@ -58,9 +58,20 @@ npx serve .
 
 | Case Study | Questions |
 |-----------|-----------|
-| Cymbal Retail | 11 |
-| Altostrat Media | 7 |
-| General / Architecture | 7 |
+| Cymbal Retail | 33 |
+| Altostrat Media | 21 |
+| General / Architecture | 21 |
+
+### Distribution by Exam Section
+
+| Section | Topic | Questions |
+|---------|-------|-----------|
+| 1 | Designing and Planning a Cloud Solution Architecture | 18 |
+| 2 | Managing and Provisioning a Solution Infrastructure | 11 |
+| 3 | Designing for Security and Compliance | 15 |
+| 4 | Analyzing and Optimizing Technical and Business Processes | 10 |
+| 5 | Managing Implementation | 10 |
+| 6 | Ensuring Solution and Operations Reliability | 11 |
 
 ---
 
