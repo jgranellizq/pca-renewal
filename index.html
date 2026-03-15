@@ -514,7 +514,7 @@
 
       <div class="info-grid">
         <div class="info-item">
-          <div class="value">50</div>
+          <div class="value">75</div>
           <div class="label">Questions</div>
         </div>
         <div class="info-item">
@@ -522,7 +522,7 @@
           <div class="label">Exam Sections</div>
         </div>
         <div class="info-item">
-          <div class="value">~100 min</div>
+          <div class="value">~150 min</div>
           <div class="label">Estimated Time</div>
         </div>
         <div class="info-item">
@@ -545,10 +545,10 @@
           <span class="mode-title">Full PCA Renewal Exam</span>
           <span class="mode-desc">75 questions · All 6 sections · Cymbal Retail &amp; Altostrat Media case studies</span>
         </button>
-        <button class="exam-mode-btn" data-file="questions-ai.json" data-questions="25" data-time="~50 min" id="mode-ai">
+        <button class="exam-mode-btn" data-file="questions-ai.json" data-questions="50" data-time="~100 min" id="mode-ai">
           <span class="mode-icon">🤖</span>
           <span class="mode-title">AI / ML Focus Exam</span>
-          <span class="mode-desc">25 questions · Vertex AI, Gemini, MLOps, GenAI architectures</span>
+          <span class="mode-desc">50 questions · Vertex AI, Gemini, MLOps, GenAI architectures</span>
         </button>
       </div>
 
@@ -656,6 +656,9 @@
       updateInfoGrid();
     });
   });
+
+  // Initialize info-grid to match the default selected mode
+  updateInfoGrid();
 
   // ── Load questions ──────────────────────────────────────────────────────────
   let questions = [];

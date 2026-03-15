@@ -4,7 +4,7 @@ An interactive practice exam for the **Google Cloud Professional Cloud Architect
 
 ## Overview
 
-This repository contains 75 scenario-based exam questions aligned with:
+This repository contains **125 scenario-based exam questions** (75 full PCA Renewal + 50 AI/ML Focus) aligned with:
 
 - [PCA Renewal Exam Guide](https://services.google.com/fh/files/misc/professional_cloud_architect_renewal_exam_guide_eng.pdf)
 - [Cymbal Retail Case Study](https://services.google.com/fh/files/misc/cymbal_retail_case_study_english.pdf)
@@ -27,7 +27,7 @@ Questions assess architectural judgment, technical depth, and operational reason
 |------|-------------|
 | `index.html` | Interactive single-page exam application (open in browser) |
 | `questions.json` | Full PCA Renewal exam: 75 scenario-based questions across all 6 sections |
-| `questions-ai.json` | AI/ML Focus exam: 25 questions heavily focused on Vertex AI, Gemini, MLOps, and GenAI architectures |
+| `questions-ai.json` | AI/ML Focus exam: 50 questions heavily focused on Vertex AI, Gemini, MLOps, and GenAI architectures |
 
 ## Running the Exam
 
@@ -53,9 +53,11 @@ The application supports two exam modes selectable from the start screen:
 | Mode | File | Questions | Estimated Time | Focus |
 |------|------|-----------|----------------|-------|
 | **Full PCA Renewal Exam** | `questions.json` | 75 | ~150 min | All 6 sections, both case studies |
-| **AI / ML Focus Exam** | `questions-ai.json` | 25 | ~50 min | Vertex AI, Gemini, MLOps, GenAI, Document AI, Vector Search |
+| **AI / ML Focus Exam** | `questions-ai.json` | 50 | ~100 min | Vertex AI, Gemini, MLOps, GenAI, Document AI, Vector Search |
 
 ## Exam Format
+
+### Full PCA Renewal Exam (`questions.json`)
 
 - **75 questions** — multiple choice, one correct answer each
 - **~150 minutes** estimated completion time
@@ -64,7 +66,17 @@ The application supports two exam modes selectable from the start screen:
 - Per-section score breakdown on the results screen
 - Full answer review with explanations
 
+### AI / ML Focus Exam (`questions-ai.json`)
+
+- **50 questions** — multiple choice, one correct answer each
+- **~100 minutes** estimated completion time
+- **70% passing score** (35 / 50 correct)
+- Covers: Vertex AI Agent Builder, Gemini API & Grounding, LoRA/PEFT fine-tuning, Vertex AI Evaluation Service, Vector Search, AlloyDB AI + pgvector, BigQuery ML, Document AI, CCAI, MLOps pipelines, Explainability, Responsible AI, and more
+- Instant feedback with detailed explanations after each answer
+
 ## Question Distribution
+
+### Full PCA Renewal Exam (`questions.json`)
 
 | Case Study | Questions |
 |-----------|-----------|
@@ -72,7 +84,7 @@ The application supports two exam modes selectable from the start screen:
 | Altostrat Media | 21 |
 | General / Architecture | 21 |
 
-### Distribution by Exam Section
+### Distribution by Exam Section (Full PCA Renewal)
 
 | Section | Topic | Questions |
 |---------|-------|-----------|
@@ -82,6 +94,55 @@ The application supports two exam modes selectable from the start screen:
 | 4 | Analyzing and Optimizing Technical and Business Processes | 10 |
 | 5 | Managing Implementation | 10 |
 | 6 | Ensuring Solution and Operations Reliability | 11 |
+
+### AI / ML Focus Exam (`questions-ai.json`)
+
+| Case Study | Questions |
+|-----------|-----------|
+| Cymbal Retail | 23 |
+| Altostrat Media | 20 |
+| General / Architecture | 7 |
+
+### Distribution by Exam Section (AI / ML Focus)
+
+| Section | Topic | Questions |
+|---------|-------|-----------|
+| 1 | Designing and Planning a Cloud Solution Architecture | 18 |
+| 2 | Managing and Provisioning a Solution Infrastructure | 8 |
+| 3 | Designing for Security and Compliance | 6 |
+| 4 | Analyzing and Optimizing Technical and Business Processes | 10 |
+| 5 | Managing Implementation | 5 |
+| 6 | Ensuring Solution and Operations Reliability | 3 |
+
+### AI / ML Focus Exam — Topics Covered
+
+| Topic Area | Example Questions |
+|------------|------------------|
+| Gemini API & Prompt Engineering | Product description generation, writing assistant grounding |
+| Gemini Grounding with Google Search | Reducing hallucinations for current-event facts |
+| Vertex AI Agent Builder / Reasoning Engine | Multi-step customer service agents, RAG over enterprise content |
+| Vertex AI Evaluation Service | GenAI output quality measurement (groundedness, coherence, relevance) |
+| Vertex AI Vector Search | ANN index tuning, streaming updates, scaling to 50M+ embeddings |
+| AlloyDB AI + pgvector | In-database vector similarity search without a separate vector store |
+| Vertex AI Feature Store | Real-time feature serving for fraud detection |
+| Vertex AI Explainability | Per-prediction feature attributions for model auditability |
+| Vertex AI Metadata Store | Artifact lineage tracking for training datasets and models |
+| Vertex AI Pipelines & MLOps | CI/CD for ML, pipeline-based training, MLOps maturity progression |
+| Vertex AI Model Registry | A/B traffic splitting, model lifecycle governance |
+| Vertex AI Colab Enterprise | Enterprise notebook governance with IAM and audit logs |
+| Vertex AI Workbench Instances | Managed notebooks with idle shutdown and VPC support |
+| Vertex AI Batch Prediction | Cost optimization with Spot VMs and parallelism |
+| BigQuery ML | ARIMA_PLUS forecasting, model export to Vertex AI |
+| PEFT / LoRA Fine-Tuning | Parameter-efficient fine-tuning for budget-constrained runs |
+| TPU vs GPU selection | Compute choice for large-scale LLM training |
+| Document AI Custom Extractor | Fine-tuned document processing for non-standard layouts |
+| Cloud Vision Product Search | Visual product search at catalog scale |
+| AutoML Vision | Custom logo/object detection models |
+| Contact Center AI (CCAI) | Virtual agents, Agent Assist, telephony integration |
+| Cloud DLP + Vertex AI Pipelines | PII de-identification in ML training data pipelines |
+| Responsible AI & Fairness | Sliced model evaluation for protected classes |
+| Multi-region ML Serving | Global endpoint deployment with geo-based load balancing |
+| AI Governance & Audit | Audit logs, model registry lifecycle, SLO alerting |
 
 ---
 
